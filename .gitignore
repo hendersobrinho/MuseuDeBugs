@@ -1,0 +1,31 @@
+# Build output
+bin/
+obj/
+
+# User-specific files
+*.user
+*.rsuser
+*.suo
+
+# IDE and editor folders
+.vs/
+.vscode/
+
+# Local tooling
+.codex
+
+# Logs
+*.log
+
+# NuGet
+packages/
+*.nupkg
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Local application configuration
+**/appsettings.Development.json
+**/appsettings.Local.json
+**/appsettings.*.local.json
