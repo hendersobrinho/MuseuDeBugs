@@ -4,24 +4,48 @@ using MuseuDeBugs.Api.DTOs;
 
 namespace MuseuDeBugs.Api.Controllers
 {
-    [ApiController] // avisa ao ASP.NET Core que esta classe é um controller de API
-    [Route("api/[controller]")] // define a rota base como api/bugs
-    public class BugsController : ControllerBase // herda recursos base para controllers de API
+    [ApiController] 
+    [Route("api/[controller]")]     
+    public class BugsController : ControllerBase 
     {
-        private readonly BugService _bugService; // campo que guarda a referência do service
-
-        public BugsController(BugService bugService) // o ASP.NET Core injeta uma instância de BugService no construtor
+        private readonly BugService _bugService;
+        public BugsController(BugService bugService) 
         {
-            _bugService = bugService; // armazena o service recebido no campo da classe para uso posterior
+            _bugService = bugService;
         }
 
-        [HttpPost] // este método responde a requisições HTTP POST
-        // ActionResult = representa uma resposta HTTP
-        // <BugResponse> = informa que o conteúdo esperado da resposta, quando houver corpo, é do tipo BugResponse
-        public ActionResult<BugResponse> CriarBug(CriarBugRequest request) // recebe os dados enviados na requisição
+        [HttpPost]
+        public ActionResult<BugResponse> CriarBug(CriarBugRequest request)
         {
-            var response = _bugService.CriarBug(request); // chama o service, recebe o BugResponse retornado e guarda na variável local response
-            return Ok(response); // devolve HTTP 200 com o objeto response no corpo da resposta
+            var response = _bugService.CriarBug(request);
+            
+            return Ok(response);
+        }
+        [HttpGet]
+        public ActionResult<List<BugResponse>> ListarBugs()
+        {
+            var response = _bugService.ListarBugs();
+
+            return Ok(response);
+        }
+        [HttpGet("{id}")]
+        public ActionResult<BugResponse> BuscarId(int id)
+        {
+            var response = _bugService.BuscarPorId(id);
+
+            if (response == null){return NotFound();}
+
+            return Ok(response);
+        }
+        [HttpPatch("{id}/resolver")]
+        public ActionResult<BugResponse> ResolverBug(int id)
+        {
+            var response = _bugService.MarcarComoResolvido(id);
+
+            if(response == null){return NotFound();}
+
+            return Ok(response);
+
         }
     }
 }

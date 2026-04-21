@@ -2,7 +2,7 @@ namespace MuseuDeBugs.Api.DTOs
 {
     public class CriarBugRequest
     {   
-        public string Titulo { get; set; } = string.Empty; // string.Empty - inicia com texto vazio para evitar warning de nulabilidade
+        public string Titulo { get; set; } = string.Empty; 
         public string Linguagem { get; set; } = string.Empty;
         public string? MensagemErro { get; set; }
         public string Descricao { get; set; } = string.Empty;

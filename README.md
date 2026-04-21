@@ -1,80 +1,223 @@
 # MuseuDeBugs
 
-O MuseuDeBugs e um projeto em C# criado para registrar erros encontrados durante estudos e projetos, guardando o que aconteceu, a mensagem de erro, a causa, a solucao e o status de cada bug.
+MuseuDeBugs e uma API em C# para registrar erros encontrados durante estudos e projetos.
 
-A ideia e simples: em vez de resolver um problema e depois esquecer como ele aconteceu, a aplicacao serve para transformar esse erro em memoria tecnica reutilizavel. Assim, quando o mesmo tipo de problema aparecer de novo, fica mais facil consultar o historico e entender o caminho da correcao.
+A ideia e transformar erros reais em memoria tecnica reutilizavel: cada bug guarda contexto, mensagem de erro, causa, solucao, status e datas. Assim, quando um problema parecido aparecer de novo, fica mais facil consultar o historico e lembrar o caminho da correcao.
 
-## Tecnologias utilizadas
+## Status atual
 
-Atualmente o projeto usa:
+O fluxo funcional da fase 1 esta implementado:
+
+- criar bug
+- listar bugs
+- buscar bug por id
+- marcar bug como resolvido
+- persistir dados em MySQL com Entity Framework Core
+- testar endpoints pelo Swagger UI
+
+O projeto compila com:
+
+```bash
+dotnet build MuseuDeBugs.Api/MuseuDeBugs.Api.csproj
+```
+
+## Tecnologias
 
 - C#
 - .NET 10
 - ASP.NET Core Web API
-- OpenAPI nativo do ASP.NET Core
 - Entity Framework Core
-- MySQL como banco planejado para a aplicacao
+- Pomelo Entity Framework Core MySQL
+- MySQL
+- OpenAPI
+- Swagger UI com Swashbuckle
 
-Hoje ainda existe um ponto de ajuste na persistencia: a documentacao e a configuracao local apontam para MySQL, mas o projeto ainda tem uma referencia de provider do SQL Server no `.csproj`. Essa parte ainda sera alinhada.
+## Estrutura principal
 
-## Para que servira a aplicacao
+```text
+MuseuDeBugs.Api/
+  Controllers/
+    BugsController.cs
+  Data/
+    AppDbContext.cs
+  DTOs/
+    CriarBugRequest.cs
+    BugResponse.cs
+  Entities/
+    Bug.cs
+  Enums/
+    StatusBug.cs
+  Services/
+    BugService.cs
+  Migrations/
+```
 
-O sistema foi pensado para funcionar como uma base pessoal de aprendizado tecnico.
+## Rodando o projeto
 
-Cada bug registrado deve guardar informacoes como:
+Na raiz do repositorio:
 
-- titulo
-- linguagem ou stack
-- mensagem de erro
-- descricao do problema
-- causa
-- solucao
-- status
-- data de criacao
+```bash
+dotnet run --project MuseuDeBugs.Api/MuseuDeBugs.Api.csproj --launch-profile http
+```
 
-Na primeira versao, a aplicacao deve permitir:
+A API deve subir em:
 
-- cadastrar bug
-- listar bugs
-- buscar bug por id
-- marcar bug como resolvido
+```text
+http://localhost:5041
+```
 
-Nao e um sistema corporativo de incidentes nem uma ferramenta estilo Jira. A proposta aqui e ter um lugar simples para documentar erros reais que apareceram durante o estudo e o desenvolvimento.
+Swagger UI:
 
-## O que ja foi feito
+```text
+http://localhost:5041/swagger/index.html
+```
 
-A base da API ja existe e o projeto ja esta organizado.
+## Banco de dados
 
-Hoje o projeto ja tem:
+O projeto usa MySQL.
 
-- solution criada
-- API `MuseuDeBugs.Api`
-- estrutura inicial de pastas
-- `Program.cs` configurado para controllers, OpenAPI e injecao de dependencia
-- entidade `Bug`
-- enum `StatusBug`
-- DTOs `CriarBugRequest` e `BugResponse`
-- `BugService`
-- `BugsController`
-- endpoint `POST /api/bugs`
+A connection string de desenvolvimento fica em `MuseuDeBugs.Api/appsettings.Development.json`:
 
-Tambem ja foi ajustado o bootstrap da aplicacao para o projeto voltar a compilar corretamente sem depender de pacote de Swagger que nao estava instalado.
+```json
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "server=localhost;port=3306;database=MuseuDeBugs;user=museu_user;password=..."
+  }
+}
+```
 
-## O que ainda falta
+Para consultar manualmente:
 
-Embora a estrutura principal ja exista, a aplicacao ainda nao terminou a primeira fase.
+```bash
+mysql -u museu_user -p MuseuDeBugs
+```
 
-Ainda falta:
+Consultas uteis:
 
-- implementar `AppDbContext`
-- alinhar o provider do Entity Framework Core com MySQL
-- conectar a API ao banco de dados
-- persistir de verdade o cadastro de bugs
-- criar os endpoints de listagem, busca por id e resolucao
-- ajustar melhor o contrato HTTP das respostas
+```sql
+SELECT * FROM Bugs;
+SELECT Id, Titulo, Linguagem, Status, DataCriacao, DataAtualizacao FROM Bugs;
+SELECT * FROM Bugs ORDER BY DataCriacao DESC;
+```
 
-## Status atual
+## Endpoints da fase 1
 
-Neste momento, o projeto ja compila, o dominio inicial ja existe e o primeiro fluxo da API ja foi esbocado.
+Base:
 
-O proximo passo mais importante e fechar a persistencia para que o sistema deixe de ser apenas estrutura e passe a funcionar como um MVP real.
+```text
+/api/bugs
+```
+
+### Criar bug
+
+```http
+POST /api/bugs
+```
+
+Body:
+
+```json
+{
+  "titulo": "NullReferenceException ao acessar propriedade",
+  "linguagem": "C#",
+  "mensagemErro": "System.NullReferenceException",
+  "descricao": "A excecao apareceu ao tentar acessar uma propriedade de um objeto que estava null.",
+  "causa": "O objeto nao foi inicializado antes do uso.",
+  "solucao": "Verificar se o objeto foi criado e validar null antes de acessar."
+}
+```
+
+Observacao: por enquanto o endpoint retorna `200 OK`. O ajuste para `201 Created` esta planejado como refinamento de contrato HTTP.
+
+### Listar bugs
+
+```http
+GET /api/bugs
+```
+
+Retorna uma lista de `BugResponse`.
+
+### Buscar bug por id
+
+```http
+GET /api/bugs/{id}
+```
+
+Retornos:
+
+- `200 OK` quando encontra
+- `404 Not Found` quando o id nao existe
+
+### Marcar como resolvido
+
+```http
+PATCH /api/bugs/{id}/resolver
+```
+
+Retornos:
+
+- `200 OK` com o bug atualizado
+- `404 Not Found` quando o id nao existe
+
+## Fluxo interno
+
+Fluxo principal da API:
+
+```text
+Cliente/Swagger/curl
+        |
+        v
+BugsController
+        |
+        v
+BugService
+        |
+        v
+AppDbContext
+        |
+        v
+MySQL
+```
+
+Responsabilidades:
+
+- `BugsController`: recebe requisicoes HTTP e devolve respostas HTTP
+- `BugService`: executa os casos de uso
+- `Bug`: representa a entidade principal do dominio
+- `AppDbContext`: conversa com o banco via EF Core
+- `CriarBugRequest`: representa dados de entrada
+- `BugResponse`: representa dados de saida da API
+
+## Aprendizado importante
+
+No endpoint de listagem, foi encontrado um erro real do EF Core ao tentar usar um metodo C# dentro de uma consulta ainda ligada ao banco.
+
+Forma corrigida:
+
+```csharp
+public List<BugResponse> ListarBugs()
+{
+    var bugs = _context.Bugs.ToList();
+
+    return bugs
+        .Select(bug => MapearParaResponse(bug))
+        .ToList();
+}
+```
+
+Regra:
+
+```text
+Antes do ToList: mundo do EF Core / SQL
+Depois do ToList: mundo do C#
+```
+
+## Proximos passos
+
+- testar novamente os endpoints pelo Swagger apos reiniciar a API
+- conferir `PATCH /api/bugs/{id}/resolver` no MySQL
+- ajustar `POST /api/bugs` para `201 Created`
+- adicionar validacoes basicas no `CriarBugRequest`
+- implementar filtros por status e linguagem
+- implementar edicao de bug
+- pensar em testes automatizados
