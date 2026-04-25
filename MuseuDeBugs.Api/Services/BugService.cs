@@ -1,6 +1,7 @@
 using MuseuDeBugs.Api.DTOs;
 using MuseuDeBugs.Api.Entities;
 using MuseuDeBugs.Api.Data;
+using MuseuDeBugs.Api.Enums;
 namespace MuseuDeBugs.Api.Services
 {
     public class BugService
@@ -42,13 +43,24 @@ namespace MuseuDeBugs.Api.Services
                 DataAtualizacao = bug.DataAtualizacao
             };
         }
-        public List<BugResponse> ListarBugs()
+        public List<BugResponse> ListarBugs(string? status, string? linguagem)
         {
-            var bugs = _context.Bugs.ToList();
+            var query = _context.Bugs.AsQueryable();
 
-            return bugs
-                .Select(bug => MapearParaResponse(bug))
-                .ToList();
+            if (!string.IsNullOrWhiteSpace(status))
+            {
+                if (Enum.TryParse<StatusBug>(status, true, out var statusConvertido))
+                {
+                    query = query.Where(bug => bug.Status == statusConvertido);
+                }
+            }
+            if (!string.IsNullOrWhiteSpace(linguagem))
+            {
+                query = query.Where(bug => bug.Linguagem == linguagem);
+            }
+
+            var bugs = query.ToList();
+            return bugs.Select(MapearParaResponse).ToList();
         }
     
         public BugResponse? BuscarPorId(int id)

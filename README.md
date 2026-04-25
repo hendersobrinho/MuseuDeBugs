@@ -6,14 +6,25 @@ A ideia e transformar erros reais em memoria tecnica reutilizavel: cada bug guar
 
 ## Status atual
 
-O fluxo funcional da fase 1 esta implementado:
+O fluxo funcional da fase 1 esta implementado e alguns refinamentos da fase 2 ja entraram:
 
 - criar bug
 - listar bugs
 - buscar bug por id
 - marcar bug como resolvido
 - persistir dados em MySQL com Entity Framework Core
+- validar campos obrigatorios no request de criacao
+- filtrar listagem por status e linguagem
 - testar endpoints pelo Swagger UI
+
+## O que mudou recentemente
+
+Mudancas confirmadas no codigo atual:
+
+- `POST /api/bugs` agora retorna `201 Created` com `CreatedAtAction`
+- `CriarBugRequest` agora usa validacoes com Data Annotations
+- `GET /api/bugs` agora aceita filtros opcionais por `status` e `linguagem`
+- a base para edicao com `AtualizarBugRequest` e `Bug.Atualizar(...)` ja foi iniciada, mas o endpoint HTTP ainda nao foi exposto
 
 O projeto compila com:
 
@@ -42,6 +53,7 @@ MuseuDeBugs.Api/
     AppDbContext.cs
   DTOs/
     CriarBugRequest.cs
+    AtualizarBugRequest.cs
     BugResponse.cs
   Entities/
     Bug.cs
@@ -127,7 +139,16 @@ Body:
 }
 ```
 
-Observacao: por enquanto o endpoint retorna `200 OK`. O ajuste para `201 Created` esta planejado como refinamento de contrato HTTP.
+Retornos:
+
+- `201 Created` quando cria com sucesso
+- `400 Bad Request` quando os dados obrigatorios sao enviados de forma invalida
+
+Validacoes basicas atuais:
+
+- `Titulo`: obrigatorio, minimo de 3 caracteres, maximo de 120
+- `Linguagem`: obrigatorio, minimo de 3 caracteres, maximo de 50
+- `Descricao`: obrigatoria, minimo de 10 caracteres
 
 ### Listar bugs
 
@@ -136,6 +157,15 @@ GET /api/bugs
 ```
 
 Retorna uma lista de `BugResponse`.
+
+Filtros opcionais:
+
+```http
+GET /api/bugs?status=Aberto
+GET /api/bugs?status=Resolvido
+GET /api/bugs?linguagem=C%23
+GET /api/bugs?status=Aberto&linguagem=SQL
+```
 
 ### Buscar bug por id
 
@@ -214,10 +244,8 @@ Depois do ToList: mundo do C#
 
 ## Proximos passos
 
-- testar novamente os endpoints pelo Swagger apos reiniciar a API
-- conferir `PATCH /api/bugs/{id}/resolver` no MySQL
-- ajustar `POST /api/bugs` para `201 Created`
-- adicionar validacoes basicas no `CriarBugRequest`
-- implementar filtros por status e linguagem
-- implementar edicao de bug
+- testar os filtros de listagem com mais combinacoes reais no Swagger
+- implementar o endpoint HTTP de edicao de bug
+- decidir se vai existir `DELETE` ou arquivamento
 - pensar em testes automatizados
+- revisar limpeza e padrao do codigo conforme a API crescer

@@ -45,6 +45,24 @@ namespace MuseuDeBugs.Api.Entities
             Status = StatusBug.Resolvido;
             DataAtualizacao = DateTime.UtcNow; //Retorna a data corrente 
         }   
+        public void Atualizar(
+            string titulo,
+            string linguagem,
+            string? mensagemErro,
+            string descricao,
+            string? causa,
+            string? solucao
+        )
+        {
+            Titulo = titulo;
+            Linguagem = linguagem;
+            MensagemErro = mensagemErro;
+            Descricao = descricao;
+            Causa = causa;
+            Solucao = solucao;
+            DataAtualizacao = DateTime.UtcNow;
+
+        }
             
 
     }

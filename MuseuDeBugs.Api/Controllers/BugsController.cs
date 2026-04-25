@@ -19,12 +19,16 @@ namespace MuseuDeBugs.Api.Controllers
         {
             var response = _bugService.CriarBug(request);
             
-            return Ok(response);
+            return CreatedAtAction(
+                nameof(BuscarId),
+                new {id = response.Id},
+                response
+            );
         }
         [HttpGet]
-        public ActionResult<List<BugResponse>> ListarBugs()
+        public ActionResult<List<BugResponse>> ListarBugs([FromQuery] string? status, [FromQuery] string linguagem)
         {
-            var response = _bugService.ListarBugs();
+            var response = _bugService.ListarBugs(status, linguagem);
 
             return Ok(response);
         }
@@ -45,7 +49,6 @@ namespace MuseuDeBugs.Api.Controllers
             if(response == null){return NotFound();}
 
             return Ok(response);
-
         }
     }
 }
