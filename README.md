@@ -1,46 +1,46 @@
 # MuseuDeBugs
 
-O MuseuDeBugs e uma API em C# para guardar bugs que apareceram nos estudos ou em projetos.
+Esse projeto e uma API em C# que eu estou montando para guardar bugs que aparecem enquanto eu estudo ou faco projetos.
 
-Pensa nele como uma caixinha organizada:
+A ideia e bem simples: quando eu quebrar a cabeca com algum erro, eu nao quero so resolver e esquecer. Eu quero guardar:
 
-```text
-Achei um erro.
-Entendi o motivo.
-Anotei a solucao.
-Guardei para nao sofrer de novo depois.
-```
+- qual era o erro
+- em qual linguagem aconteceu
+- o que causou
+- como eu resolvi
+- se ainda esta aberto ou se ja foi resolvido
 
-Cada bug guarda coisas como titulo, linguagem, mensagem de erro, descricao, causa, solucao, status e datas.
+No fim, o MuseuDeBugs vira tipo um caderno de bugs. So que em vez de ficar tudo espalhado em anotacao solta, fica salvo numa API de verdade, com banco, regras, login admin e depois um front.
 
-O objetivo e simples: transformar erro em memoria.
+## Estado atual
 
-## Como o projeto esta agora
+Hoje o backend ja faz bastante coisa:
 
-Hoje a API ja consegue:
+- cria bug
+- lista bugs
+- busca bug por id
+- edita bug
+- marca bug como resolvido
+- deleta bug
+- filtra por status e linguagem
+- salva no MySQL usando Entity Framework Core
+- valida os dados que chegam na API
+- tem login admin por cookie
+- protege rotas de escrita com `[Authorize(Roles = "Admin")]`
+- libera CORS para front local em Angular ou Vite
+- tem Swagger em desenvolvimento
+- tem testes automatizados do `BugService`
+- tem uma ferramenta para gerar hash da senha do admin
 
-- criar um bug
-- listar bugs
-- buscar um bug pelo id
-- editar um bug
-- marcar um bug como resolvido
-- deletar um bug
-- filtrar bugs por status e linguagem
-- salvar tudo em MySQL com Entity Framework Core
-- validar os dados recebidos
-- proteger rotas de admin com login por cookie
-- aceitar chamadas do front local em Angular ou Vite
-- mostrar a API no Swagger em desenvolvimento
-- rodar testes automatizados do `BugService`
-- gerar hash de senha do admin com `MuseuDeBugs.Tools`
+Ou seja: a API ja nao esta mais so no "hello world". Ela ja tem uma base real para virar aplicacao com painel.
 
-## A ideia da seguranca
+## Como eu penso esse projeto
 
-O projeto tem dois tipos de pessoa:
+Tem dois tipos de uso:
 
 ```text
 Visitante:
-  pode olhar os bugs.
+  pode ver os bugs.
 
 Admin:
   faz login.
@@ -48,45 +48,13 @@ Admin:
   pode criar, editar, resolver e deletar bugs.
 ```
 
-O cookie e como uma pulseirinha de entrada.
+O front ate pode esconder botoes, mas quem precisa bloquear de verdade e o backend.
 
-Depois do login, o navegador guarda essa pulseirinha. Quando o admin chama uma rota protegida, o navegador manda o cookie junto, e a API confere se a pessoa pode passar.
-
-## Rotas publicas
-
-Essas rotas podem ser usadas sem login:
-
-```http
-GET /api/bugs
-GET /api/bugs/{id}
-POST /api/auth/login
-POST /api/auth/logout
-GET /api/auth/me
-```
-
-`/api/auth/me` tambem funciona sem login porque ele serve para perguntar:
+Entao a regra mental e:
 
 ```text
-Tem alguem logado agora?
-```
-
-Se tiver, ele responde quem e. Se nao tiver, ele responde que nao tem admin autenticado.
-
-## Rotas protegidas
-
-Essas rotas precisam de login admin:
-
-```http
-POST /api/bugs
-PUT /api/bugs/{id}
-PATCH /api/bugs/{id}/resolver
-DELETE /api/bugs/{id}
-```
-
-Se tentar usar sem login, a API deve responder:
-
-```http
-401 Unauthorized
+GET publico.
+Escrita so com admin logado.
 ```
 
 ## Tecnologias
@@ -100,12 +68,11 @@ Se tentar usar sem login, a API deve responder:
 - Cookie Authentication
 - Authorization com role `Admin`
 - Rate Limiting do ASP.NET Core
-- OpenAPI
-- Swagger UI com Swashbuckle
+- Swagger / OpenAPI
 - xUnit
-- EF Core InMemory para testes
+- EF Core InMemory nos testes
 
-## Estrutura principal
+## Estrutura do projeto
 
 ```text
 MuseuDeBugs.Api/
@@ -142,15 +109,11 @@ MuseuDeBugs.Tools/
   Program.cs
 ```
 
-`AdminOnlyAttribute.cs` ficou como estudo da fase anterior. A protecao real das rotas admin agora usa:
+Obs: `AdminOnlyAttribute.cs` ficou como registro da fase antiga, quando eu estava usando chave no header. A protecao principal agora e por login com cookie e `[Authorize]`.
 
-```csharp
-[Authorize(Roles = "Admin")]
-```
+## Como rodar
 
-## Rodando a API
-
-Na raiz do repositorio:
+Na raiz do projeto:
 
 ```bash
 dotnet restore MuseuDeBugs.slnx
@@ -158,31 +121,31 @@ dotnet build MuseuDeBugs.slnx
 dotnet run --project MuseuDeBugs.Api/MuseuDeBugs.Api.csproj --launch-profile http
 ```
 
-A API sobe aqui:
+A API sobe em:
 
 ```text
 http://localhost:5041
 ```
 
-Em desenvolvimento, o Swagger fica aqui:
+Swagger, em desenvolvimento:
 
 ```text
 http://localhost:5041/swagger/index.html
 ```
 
-## Configurando o banco local
+## Banco local
 
 O projeto usa MySQL.
 
-No seu computador, a connection string fica em:
+A connection string local fica em:
 
 ```text
 MuseuDeBugs.Api/appsettings.Development.json
 ```
 
-Esse arquivo esta no `.gitignore`, porque ele pode ter senha local.
+Esse arquivo nao vai para o GitHub. Ele esta no `.gitignore`, justamente porque pode ter senha local.
 
-Exemplo sem senha real:
+Exemplo sem segredo real:
 
 ```json
 {
@@ -192,13 +155,13 @@ Exemplo sem senha real:
 }
 ```
 
-Para consultar manualmente:
+Para entrar no banco pelo terminal:
 
 ```bash
 mysql -u museu_user -p MuseuDeBugs
 ```
 
-Consultas uteis:
+Consultas que ajudam:
 
 ```sql
 SELECT * FROM Bugs;
@@ -206,15 +169,11 @@ SELECT Id, Titulo, Linguagem, Status, DataCriacao, DataAtualizacao FROM Bugs;
 SELECT * FROM Bugs ORDER BY DataCriacao DESC;
 ```
 
-## Configurando o admin local
+## Admin local
 
-O admin tambem fica no:
+O admin tambem fica no `appsettings.Development.json`.
 
-```text
-MuseuDeBugs.Api/appsettings.Development.json
-```
-
-Exemplo sem segredo real:
+Exemplo:
 
 ```json
 {
@@ -225,43 +184,34 @@ Exemplo sem segredo real:
 }
 ```
 
-Regra de ouro:
+Aqui tem uma regra importante:
 
 ```text
-senha pura nao fica salva.
-hash da senha pode ficar na configuracao.
+senha pura nunca fica salva.
+o que fica salvo e o hash da senha.
 ```
 
-## Gerando o hash da senha
+## Gerando hash da senha
 
-Use a ferramenta do projeto:
+Eu criei um projetinho separado so para gerar o hash:
 
 ```bash
 dotnet run --project MuseuDeBugs.Tools/MuseuDeBugs.Tools.csproj
 ```
 
-Ela vai pedir:
+Ele pede o username e a senha. Depois cospe um texto grande, que e o hash.
 
-```text
-Username do admin
-Senha do admin
-```
-
-Depois ela mostra um texto grande. Esse texto e o hash.
-
-Cole o hash em:
+Esse hash vai em:
 
 ```text
 Admin:PasswordHash
 ```
 
-Nao coloque a senha pura no `appsettings`.
+## Configuracao em producao
 
-## Configurando em producao
+Quando isso for para internet, a API nao deve depender do `appsettings.Development.json`.
 
-Na internet, a API nao deve depender de `appsettings.Development.json`.
-
-Use variaveis de ambiente:
+O certo e configurar por variaveis de ambiente:
 
 ```text
 Admin__Username=hnd
@@ -270,23 +220,54 @@ ConnectionStrings__DefaultConnection=CONNECTION_STRING_SEGURA
 ASPNETCORE_ENVIRONMENT=Production
 ```
 
-No .NET, `__` significa "entra dentro da caixinha".
+No .NET, `__` vira `:`.
 
-Entao:
+Entao isso:
 
 ```text
 Admin__Username
 ```
 
-vira:
+vira isso:
 
 ```text
 Admin:Username
 ```
 
+## Rotas publicas
+
+Essas rotas podem ser chamadas sem login:
+
+```http
+GET /api/bugs
+GET /api/bugs/{id}
+POST /api/auth/login
+POST /api/auth/logout
+GET /api/auth/me
+```
+
+`/api/auth/me` serve para o front perguntar se tem alguem logado.
+
+## Rotas protegidas
+
+Essas aqui precisam de admin logado:
+
+```http
+POST /api/bugs
+PUT /api/bugs/{id}
+PATCH /api/bugs/{id}/resolver
+DELETE /api/bugs/{id}
+```
+
+Sem login, a API devolve:
+
+```http
+401 Unauthorized
+```
+
 ## Testando login com curl
 
-Primeiro faz login e guarda o cookie:
+Primeiro eu faco login e salvo o cookie:
 
 ```bash
 curl -i -c cookies.txt -X POST http://localhost:5041/api/auth/login \
@@ -297,7 +278,7 @@ curl -i -c cookies.txt -X POST http://localhost:5041/api/auth/login \
   }'
 ```
 
-Depois usa o cookie para criar um bug:
+Depois eu uso o cookie para chamar uma rota protegida:
 
 ```bash
 curl -i -b cookies.txt -X POST http://localhost:5041/api/bugs \
@@ -315,26 +296,26 @@ Para sair:
 curl -i -b cookies.txt -X POST http://localhost:5041/api/auth/logout
 ```
 
-## CORS para o front
+## CORS e front
 
-A API aceita chamadas locais vindas de:
+Por enquanto a API aceita front local nessas origens:
 
 ```text
 http://localhost:4200
 http://localhost:5173
 ```
 
-`4200` e a porta comum do Angular.
+`4200` e o padrao do Angular.
 
-`5173` e a porta comum do Vite.
+`5173` e o padrao do Vite.
 
-Como o login usa cookie, o front precisa chamar a API com credenciais.
-
-No Angular, isso aparece assim:
+Como o login usa cookie, no Angular as chamadas precisam mandar credenciais:
 
 ```ts
 this.http.post(url, body, { withCredentials: true });
 ```
+
+Sem isso, o navegador pode nao mandar o cookie junto.
 
 ## Endpoints de bugs
 
@@ -350,7 +331,7 @@ Base:
 POST /api/bugs
 ```
 
-Precisa estar logado como admin.
+Precisa estar logado.
 
 Body:
 
@@ -365,11 +346,11 @@ Body:
 }
 ```
 
-Retornos comuns:
+Retornos principais:
 
-- `201 Created` quando cria
-- `400 Bad Request` quando algum dado obrigatorio esta ruim
-- `401 Unauthorized` quando nao tem login admin
+- `201 Created`
+- `400 Bad Request`
+- `401 Unauthorized`
 
 ### Listar bugs
 
@@ -379,7 +360,7 @@ GET /api/bugs
 
 Essa rota e publica.
 
-Filtros opcionais:
+Filtros:
 
 ```http
 GET /api/bugs?status=Aberto
@@ -388,18 +369,18 @@ GET /api/bugs?linguagem=C%23
 GET /api/bugs?status=Aberto&linguagem=SQL
 ```
 
-### Buscar bug por id
+### Buscar por id
 
 ```http
 GET /api/bugs/{id}
 ```
 
-Essa rota e publica.
+Essa rota tambem e publica.
 
-Retornos comuns:
+Retornos principais:
 
-- `200 OK` quando encontra
-- `404 Not Found` quando o id nao existe
+- `200 OK`
+- `404 Not Found`
 
 ### Atualizar bug
 
@@ -407,7 +388,7 @@ Retornos comuns:
 PUT /api/bugs/{id}
 ```
 
-Precisa estar logado como admin.
+Precisa estar logado.
 
 Body:
 
@@ -422,26 +403,26 @@ Body:
 }
 ```
 
-Retornos comuns:
+Retornos principais:
 
-- `200 OK` quando atualiza
-- `400 Bad Request` quando algum dado obrigatorio esta ruim
-- `401 Unauthorized` quando nao tem login admin
-- `404 Not Found` quando o id nao existe
+- `200 OK`
+- `400 Bad Request`
+- `401 Unauthorized`
+- `404 Not Found`
 
-### Marcar como resolvido
+### Resolver bug
 
 ```http
 PATCH /api/bugs/{id}/resolver
 ```
 
-Precisa estar logado como admin.
+Precisa estar logado.
 
-Retornos comuns:
+Retornos principais:
 
-- `200 OK` com o bug resolvido
-- `401 Unauthorized` quando nao tem login admin
-- `404 Not Found` quando o id nao existe
+- `200 OK`
+- `401 Unauthorized`
+- `404 Not Found`
 
 ### Deletar bug
 
@@ -449,38 +430,36 @@ Retornos comuns:
 DELETE /api/bugs/{id}
 ```
 
-Precisa estar logado como admin.
+Precisa estar logado.
 
-Retornos comuns:
+Retornos principais:
 
-- `204 No Content` quando remove
-- `401 Unauthorized` quando nao tem login admin
-- `404 Not Found` quando o id nao existe
+- `204 No Content`
+- `401 Unauthorized`
+- `404 Not Found`
 
-## Validacoes dos bugs
+## Validacoes
 
-Pense nos campos como caixinhas.
+Campos obrigatorios:
 
-Algumas caixinhas precisam vir preenchidas:
+- `Titulo`: 3 ate 120 caracteres
+- `Linguagem`: 1 ate 50 caracteres
+- `Descricao`: 10 ate 2000 caracteres
 
-- `Titulo`: obrigatorio, de 3 ate 120 caracteres
-- `Linguagem`: obrigatoria, de 1 ate 50 caracteres
-- `Descricao`: obrigatoria, de 10 ate 2000 caracteres
-
-Outras podem vir vazias, mas tem limite:
+Campos opcionais, mas com limite:
 
 - `MensagemErro`: ate 500 caracteres
 - `Causa`: ate 2000 caracteres
 - `Solucao`: ate 2000 caracteres
 
-Isso evita que alguem tente mandar um texto gigante onde deveria caber so uma anotacao.
+Isso e para evitar mandar um texto gigante onde deveria entrar so uma anotacao.
 
 ## Fluxo interno
 
-Quando alguem chama a API, o caminho principal e:
+O caminho normal da API e esse:
 
 ```text
-Cliente, Swagger ou front
+Cliente / Swagger / Front
         |
         v
 Controller
@@ -495,22 +474,16 @@ AppDbContext
 MySQL
 ```
 
-Traduzindo:
+Separando as responsabilidades:
 
-- `Controller` recebe a chamada HTTP
-- `Service` faz a regra do sistema
-- `Bug` representa o bug guardado
+- `Controller` recebe HTTP
+- `Service` guarda a regra do sistema
+- `Bug` e a entidade principal
 - `AppDbContext` conversa com o banco
-- `CriarBugRequest` e `AtualizarBugRequest` sao entradas
-- `BugResponse` e a resposta que sai da API
+- `Request` e o que entra
+- `Response` e o que sai
 
-## Testes automatizados
-
-Os testes ficam em:
-
-```text
-MuseuDeBugs.Tests/
-```
+## Testes
 
 Para rodar:
 
@@ -520,21 +493,20 @@ dotnet test MuseuDeBugs.slnx
 
 Hoje os testes cobrem o `BugService`:
 
-- criar bug com status `Aberto`
+- criar bug aberto
 - buscar bug existente
-- retornar `null` quando o id nao existe
-- marcar bug como `Resolvido`
-- atualizar dados do bug
-- filtrar por status
-- filtrar por linguagem
-- retornar `false` ao deletar id inexistente
-- remover bug existente
+- retornar `null` quando nao acha
+- marcar como resolvido
+- atualizar bug
+- filtrar por status e linguagem
+- tentar deletar id inexistente
+- deletar bug existente
 
-Um bom proximo passo e adicionar testes de API para login e rotas protegidas.
+Ainda quero colocar testes de API depois, principalmente para login e rotas protegidas.
 
-## Cuidados de seguranca ja aplicados
+## Seguranca que ja tem
 
-O projeto ja tem estas camadas:
+Coisas que ja foram colocadas:
 
 - senha do admin guardada como hash
 - login por cookie
@@ -542,68 +514,55 @@ O projeto ja tem estas camadas:
 - cookie `Secure` em producao
 - cookie `SameSite=Lax`
 - rotas admin com `[Authorize(Roles = "Admin")]`
-- CORS restrito para portas locais conhecidas
-- chamadas com credenciais para o front
-- limite de tentativas no endpoint de login
-- bloqueio temporario depois de muitas senhas erradas
-- tamanho maximo nos DTOs
+- CORS restrito para front local
+- login com limite de tentativas
+- bloqueio temporario depois de muitas tentativas erradas
+- limite de tamanho nos DTOs
 - headers basicos de seguranca
-- `Cache-Control: no-store` em rotas da API principal
-- sem senha na URL
+- `Cache-Control: no-store` nas rotas principais da API
+- nada de senha na URL
 
-Antes de publicar na internet, ainda precisa conferir no ambiente real:
+Antes de publicar de verdade, ainda preciso revisar:
 
-- HTTPS funcionando com certificado valido
-- variaveis de ambiente configuradas
+- HTTPS com certificado valido
+- variaveis de ambiente no servidor
+- dominio real no CORS
 - Swagger sem segredo real
 - banco com senha forte
 - banco sem ficar aberto para qualquer IP
-- CORS usando o dominio real do front
-- logs sem senha, cookie, hash ou connection string
-- backups se os dados forem importantes
+- logs sem senha, hash, cookie ou connection string
+- backup, se os dados ficarem importantes
 
-## Plano do front em Angular e TypeScript
+## Plano do front em Angular + TypeScript
 
-O front pode nascer como um painel simples, mas organizado.
+A proxima parte e montar o front.
 
-### Telas publicas
+Eu imagino com duas areas:
 
-- `/bugs`: lista publica dos bugs
-- `/bugs/:id`: detalhe publico de um bug
+```text
+Area publica:
+  lista bugs
+  mostra detalhe de bug
 
-Essas telas nao precisam de login.
+Area admin:
+  login
+  painel
+  criar bug
+  editar bug
+  resolver bug
+  deletar bug
+```
 
-O visitante consegue ver:
+Rotas pensadas:
 
-- titulo
-- linguagem
-- status
-- descricao
-- causa
-- solucao
-- data de criacao
-- data de atualizacao
+- `/bugs`
+- `/bugs/:id`
+- `/login`
+- `/admin`
+- `/admin/bugs/novo`
+- `/admin/bugs/:id/editar`
 
-### Telas admin
-
-- `/login`: entrada do admin
-- `/admin`: painel com resumo
-- `/admin/bugs/novo`: formulario para criar bug
-- `/admin/bugs/:id/editar`: formulario para editar bug
-
-Essas telas usam login por cookie.
-
-O admin consegue:
-
-- criar bug
-- editar bug
-- marcar como resolvido
-- deletar bug
-- sair da conta
-
-### Pecas de TypeScript
-
-Modelos principais:
+No TypeScript, vou precisar de modelos como:
 
 ```ts
 export interface BugResponse {
@@ -620,64 +579,48 @@ export interface BugResponse {
 }
 ```
 
-Tambem vale criar:
+Tambem vou criar:
 
-```text
-CriarBugRequest
-AtualizarBugRequest
-LoginRequest
-MeResponse
-```
+- `CriarBugRequest`
+- `AtualizarBugRequest`
+- `LoginRequest`
+- `MeResponse`
 
-Services principais:
+Services:
 
-- `AuthService`: login, logout e me
-- `BugService`: listar, buscar, criar, editar, resolver e deletar
-- `AuthGuard`: protege as rotas admin
+- `AuthService`: login, logout e `me`
+- `BugService`: CRUD dos bugs
+- `AuthGuard`: proteger rotas admin
 
-### Ordem boa para construir
+Ordem que faz sentido:
 
 1. Criar o app Angular.
-2. Configurar `apiUrl` apontando para `http://localhost:5041`.
+2. Configurar `apiUrl` para `http://localhost:5041`.
 3. Criar os modelos TypeScript.
-4. Criar `AuthService` com `withCredentials: true`.
+4. Criar `AuthService` usando `withCredentials: true`.
 5. Criar `BugService`.
-6. Fazer tela publica de lista.
-7. Fazer tela publica de detalhe.
-8. Fazer login admin.
+6. Fazer lista publica.
+7. Fazer detalhe publico.
+8. Fazer login.
 9. Fazer guard das rotas admin.
-10. Fazer formulario de criar e editar bug.
-11. Fazer botoes de resolver e deletar.
-12. Ajustar estados de carregando, vazio e erro.
-
-### Regra simples para o front
-
-O front pode esconder botoes, mas quem manda de verdade e o backend.
-
-Mesmo que o botao de deletar fique invisivel para visitante, a API tambem precisa bloquear.
-
-E ela ja bloqueia.
+10. Fazer criar e editar bug.
+11. Fazer resolver e deletar.
+12. Ajustar carregamento, erro e tela vazia.
 
 ## Aprendizado importante
 
-No endpoint de listagem, apareceu um aprendizado real do EF Core:
+Teve um ponto importante com EF Core:
 
 ```text
-Antes do ToList: mundo do EF Core / SQL.
-Depois do ToList: mundo do C#.
+Antes do ToList: ainda e mundo do banco / SQL.
+Depois do ToList: ja e mundo do C#.
 ```
 
-Ou seja:
-
-```text
-Se ainda esta montando consulta para o banco, cuidado com metodo C# comum.
-Se ja trouxe os dados para memoria, ai o C# trabalha tranquilo.
-```
+Isso importa porque nem todo metodo C# consegue virar SQL.
 
 ## Proximos passos
 
-- adicionar testes de API para login e autorizacao
-- criar o front Angular com TypeScript
-- testar o fluxo completo: login, criar bug, listar, editar, resolver e deletar
-- trocar as origens CORS locais pelo dominio real quando publicar
-- revisar hardening de producao antes de colocar na internet
+- adicionar testes de API para auth
+- comecar o front em Angular
+- testar o fluxo inteiro com cookie
+- revisar hardening de producao antes de publicar
