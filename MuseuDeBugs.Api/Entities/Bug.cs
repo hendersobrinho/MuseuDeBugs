@@ -6,7 +6,7 @@ namespace MuseuDeBugs.Api.Entities
     public class  Bug
     {
         public int Id { get; private set;}
-        public string Titulo { get; private set;} = null!; // O operador null-forgiving (!) é usado para indicar que a propriedade Titulo não será nula, mesmo que o tipo string seja anulável por padrão. Isso é útil para evitar avisos de compilação relacionados a possíveis valores nulos.
+        public string Titulo { get; private set;} = null!; 
         public string Linguagem { get; private set; } = null!;
         public string? MensagemErro { get; private set; } = null!;
         public string Descricao { get; private set; } = null!;

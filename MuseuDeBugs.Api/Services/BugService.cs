@@ -26,7 +26,7 @@ namespace MuseuDeBugs.Api.Services
 
             return MapearParaResponse(bug);
         }
-        
+
         private BugResponse MapearParaResponse(Bug bug)
         {
             return new BugResponse
@@ -43,6 +43,7 @@ namespace MuseuDeBugs.Api.Services
                 DataAtualizacao = bug.DataAtualizacao
             };
         }
+
         public List<BugResponse> ListarBugs(string? status, string? linguagem)
         {
             var query = _context.Bugs.AsQueryable();
@@ -81,6 +82,37 @@ namespace MuseuDeBugs.Api.Services
             _context.SaveChanges();
 
             return MapearParaResponse(bug);
+        }
+
+        public BugResponse? AtualizarBug(int id, AtualizarBugRequest request)
+        {
+            var bug = _context.Bugs.Find(id);
+
+            if (bug == null) { return null; }
+
+            bug.Atualizar(
+                request.Titulo,
+                request.Linguagem,
+                request.MensagemErro,
+                request.Descricao,
+                request.Causa,
+                request.Solucao);
+
+            _context.SaveChanges();
+
+            return MapearParaResponse(bug);
+        }
+
+        public bool DeletarBug(int id)
+        {
+            var bug = _context.Bugs.Find(id);
+
+            if (bug == null) { return false; }
+
+            _context.Bugs.Remove(bug);
+            _context.SaveChanges();
+
+            return true;
         }
     }
 }

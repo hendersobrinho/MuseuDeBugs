@@ -1,3 +1,5 @@
 <Solution>
   <Project Path="MuseuDeBugs.Api/MuseuDeBugs.Api.csproj" />
+  <Project Path="MuseuDeBugs.Tests/MuseuDeBugs.Tests.csproj" />
+  <Project Path="MuseuDeBugs.Tools/MuseuDeBugs.Tools.csproj" />
 </Solution>
