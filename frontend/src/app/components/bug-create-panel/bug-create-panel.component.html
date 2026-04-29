@@ -1,0 +1,89 @@
+<section class="panel-block create-panel" aria-label="Registrar bug">
+  <div class="panel-title">
+    <span aria-hidden="true">＋</span>
+    <h2>Registrar bug</h2>
+  </div>
+
+  <button class="primary-button create-toggle" type="button" (click)="toggleForm()">
+    {{ isOpen ? 'Fechar formulario' : 'Novo bug' }}
+  </button>
+
+  @if (isOpen) {
+    <form class="create-form" (ngSubmit)="salvar()">
+      <label class="create-field">
+        <span>Titulo</span>
+        <input
+          name="titulo"
+          type="text"
+          maxlength="120"
+          required
+          [(ngModel)]="form.titulo"
+        />
+      </label>
+
+      <label class="create-field">
+        <span>Linguagem</span>
+        <input
+          name="linguagem"
+          type="text"
+          maxlength="50"
+          required
+          [(ngModel)]="form.linguagem"
+        />
+      </label>
+
+      <label class="create-field">
+        <span>Mensagem de erro</span>
+        <textarea
+          name="mensagemErro"
+          rows="3"
+          maxlength="500"
+          [(ngModel)]="form.mensagemErro"
+        ></textarea>
+      </label>
+
+      <label class="create-field">
+        <span>Descricao</span>
+        <textarea
+          name="descricao"
+          rows="4"
+          maxlength="2000"
+          required
+          [(ngModel)]="form.descricao"
+        ></textarea>
+      </label>
+
+      <label class="create-field">
+        <span>Causa</span>
+        <textarea
+          name="causa"
+          rows="3"
+          maxlength="2000"
+          [(ngModel)]="form.causa"
+        ></textarea>
+      </label>
+
+      <label class="create-field">
+        <span>Solucao</span>
+        <textarea
+          name="solucao"
+          rows="3"
+          maxlength="2000"
+          [(ngModel)]="form.solucao"
+        ></textarea>
+      </label>
+
+      <button class="primary-button create-submit" type="submit" [disabled]="isSubmitting">
+        {{ isSubmitting ? 'Salvando...' : 'Salvar bug' }}
+      </button>
+    </form>
+  }
+
+  @if (errorMessage) {
+    <p class="create-message create-message-error">{{ errorMessage }}</p>
+  }
+
+  @if (successMessage) {
+    <p class="create-message create-message-success">{{ successMessage }}</p>
+  }
+</section>

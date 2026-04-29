@@ -1,0 +1,61 @@
+<section class="panel-block auth-panel" aria-label="Acesso admin">
+  <div class="panel-title">
+    <span aria-hidden="true">▣</span>
+    <h2>Admin</h2>
+  </div>
+
+  @if (isCheckingSession) {
+    <p class="auth-muted">Verificando sessao...</p>
+  } @else if (isAuthenticated) {
+    <div class="auth-session">
+      <span class="auth-status-dot" aria-hidden="true"></span>
+      <div>
+        <strong>{{ session?.username }}</strong>
+        <span>{{ rolesLabel }}</span>
+      </div>
+    </div>
+
+    <button
+      class="secondary-button auth-action"
+      type="button"
+      [disabled]="isSubmitting"
+      (click)="logout()"
+    >
+      Sair
+    </button>
+  } @else {
+    <form class="auth-form" (ngSubmit)="login()">
+      <label class="auth-field">
+        <span>Usuario</span>
+        <input
+          name="username"
+          type="text"
+          autocomplete="username"
+          [(ngModel)]="credentials.username"
+        />
+      </label>
+
+      <label class="auth-field">
+        <span>Senha</span>
+        <input
+          name="password"
+          type="password"
+          autocomplete="current-password"
+          [(ngModel)]="credentials.password"
+        />
+      </label>
+
+      <button class="primary-button auth-action" type="submit" [disabled]="isSubmitting">
+        {{ isSubmitting ? 'Entrando...' : 'Entrar' }}
+      </button>
+    </form>
+  }
+
+  @if (errorMessage) {
+    <p class="auth-message auth-message-error">{{ errorMessage }}</p>
+  }
+
+  @if (successMessage) {
+    <p class="auth-message auth-message-success">{{ successMessage }}</p>
+  }
+</section>

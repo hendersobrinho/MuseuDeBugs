@@ -1,0 +1,24 @@
+<section class="groove-strip" aria-label="Indicadores do acervo">
+  <div class="pad-bank">
+    @for (pad of pads; track pad; let index = $index) {
+      <button class="pad" [class]="'pad pad-' + (index % 4)">
+        <span>{{ pad }}</span>
+      </button>
+    }
+  </div>
+
+  <div class="knob-bank" aria-hidden="true">
+    <div class="knob-block">
+      <span class="knob"></span>
+      <small>causa</small>
+    </div>
+    <div class="knob-block">
+      <span class="knob level-two"></span>
+      <small>solucao</small>
+    </div>
+    <div class="knob-block">
+      <span class="knob level-three"></span>
+      <small>risco</small>
+    </div>
+  </div>
+</section>

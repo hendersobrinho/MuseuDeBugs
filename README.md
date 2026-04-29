@@ -1,6 +1,6 @@
 # MuseuDeBugs
 
-Esse projeto e uma API em C# que eu estou montando para guardar bugs que aparecem enquanto eu estudo ou faco projetos.
+Esse projeto e uma aplicacao em C# + Angular que eu estou montando para guardar bugs que aparecem enquanto eu estudo ou faco projetos.
 
 A ideia e bem simples: quando eu quebrar a cabeca com algum erro, eu nao quero so resolver e esquecer. Eu quero guardar:
 
@@ -10,7 +10,7 @@ A ideia e bem simples: quando eu quebrar a cabeca com algum erro, eu nao quero s
 - como eu resolvi
 - se ainda esta aberto ou se ja foi resolvido
 
-No fim, o MuseuDeBugs vira tipo um caderno de bugs. So que em vez de ficar tudo espalhado em anotacao solta, fica salvo numa API de verdade, com banco, regras, login admin e depois um front.
+No fim, o MuseuDeBugs vira tipo um caderno de bugs. So que em vez de ficar tudo espalhado em anotacao solta, fica salvo numa API de verdade, com banco, regras, login admin e um front proprio.
 
 ## Estado atual
 
@@ -32,7 +32,19 @@ Hoje o backend ja faz bastante coisa:
 - tem testes automatizados do `BugService`
 - tem uma ferramenta para gerar hash da senha do admin
 
-Ou seja: a API ja nao esta mais so no "hello world". Ela ja tem uma base real para virar aplicacao com painel.
+O frontend Angular tambem ja saiu da fase de maquete:
+
+- lista bugs reais vindos da API
+- busca bug por id
+- mostra cards com dados vindos do banco
+- mostra estatisticas reais no painel lateral
+- mostra linguagens mais usadas com base nos bugs cadastrados
+- tem login admin por cookie na sidebar
+- cria bug pelo painel lateral quando o admin esta logado
+- atualiza a lista e as estatisticas depois de criar um bug
+- usa `HttpClient`, services, models e componentes standalone
+
+Ou seja: a API ja nao esta mais so no "hello world", e o front ja conversa com ela de verdade.
 
 ## Como eu penso esse projeto
 
@@ -71,6 +83,11 @@ Escrita so com admin logado.
 - Swagger / OpenAPI
 - xUnit
 - EF Core InMemory nos testes
+- Angular
+- TypeScript
+- RxJS / Observable
+- Angular HttpClient
+- HTML e CSS
 
 ## Estrutura do projeto
 
@@ -107,11 +124,34 @@ MuseuDeBugs.Tests/
 
 MuseuDeBugs.Tools/
   Program.cs
+
+frontend/
+  src/
+    app/
+      components/
+        auth-panel/
+        bug-card/
+        bug-create-panel/
+        bug-grid/
+        groove-strip/
+        right-panel/
+        sidebar/
+        topbar/
+      config/
+        api.config.ts
+      models/
+        bug-response.ts
+        criar-bug-request.ts
+        login-request.ts
+        me-response.ts
+      services/
+        auth.service.ts
+        bug.service.ts
 ```
 
 Obs: `AdminOnlyAttribute.cs` ficou como registro da fase antiga, quando eu estava usando chave no header. A protecao principal agora e por login com cookie e `[Authorize]`.
 
-## Como rodar
+## Como rodar o backend
 
 Na raiz do projeto:
 
@@ -131,6 +171,36 @@ Swagger, em desenvolvimento:
 
 ```text
 http://localhost:5041/swagger/index.html
+```
+
+## Como rodar o frontend
+
+Em outro terminal:
+
+```bash
+cd frontend
+npm install
+npm start
+```
+
+O Angular sobe em:
+
+```text
+http://localhost:4200
+```
+
+Para testar a aplicacao completa, deixe os dois rodando ao mesmo tempo:
+
+```text
+Backend:  http://localhost:5041
+Frontend: http://localhost:4200
+```
+
+Para gerar build do front:
+
+```bash
+cd frontend
+npm run build
 ```
 
 ## Banco local
@@ -533,79 +603,152 @@ Antes de publicar de verdade, ainda preciso revisar:
 - logs sem senha, hash, cookie ou connection string
 - backup, se os dados ficarem importantes
 
-## Plano do front em Angular + TypeScript
+## Front Angular - estado atual
 
-A proxima parte e montar o front.
-
-Eu imagino com duas areas:
+O front fica em:
 
 ```text
-Area publica:
-  lista bugs
-  mostra detalhe de bug
-
-Area admin:
-  login
-  painel
-  criar bug
-  editar bug
-  resolver bug
-  deletar bug
+frontend/
 ```
 
-Rotas pensadas:
+Ele usa Angular standalone, sem `AppModule`.
 
-- `/bugs`
-- `/bugs/:id`
-- `/login`
-- `/admin`
-- `/admin/bugs/novo`
-- `/admin/bugs/:id/editar`
+Configuracoes importantes:
 
-No TypeScript, vou precisar de modelos como:
+- `app.config.ts`: registra `provideHttpClient()`
+- `api.config.ts`: guarda `http://localhost:5041/api`
+- `bug.service.ts`: chama endpoints de bugs
+- `auth.service.ts`: chama login, logout e me
+
+### Funcionalidades ja conectadas
+
+Hoje o front ja faz:
+
+- lista bugs reais com `GET /api/bugs`
+- busca bug por id com `GET /api/bugs/{id}`
+- login admin com `POST /api/auth/login`
+- verifica sessao com `GET /api/auth/me`
+- logout com `POST /api/auth/logout`
+- cria bug com `POST /api/bugs`
+- atualiza o grid depois de criar bug
+- atualiza estatisticas depois de criar bug
+
+### Componentes principais
+
+```text
+SidebarComponent
+  mostra a marca do app
+  mostra o painel de login admin
+
+AuthPanelComponent
+  formulario de login
+  estado logado/deslogado
+  botao de logout
+
+TopbarComponent
+  busca bug por id
+
+GrooveStripComponent
+  hoje e visual
+  proximo passo: virar filtros por status e linguagem
+
+BugGridComponent
+  lista cards de bugs
+  mostra resultado da busca por id
+  recebe bug criado e atualiza a lista
+
+BugCardComponent
+  renderiza um bug individual
+
+RightPanelComponent
+  painel lateral com criar bug, destaque, estatisticas e linguagens
+
+BugCreatePanelComponent
+  formulario para criar bug
+  chama rota protegida usando cookie
+```
+
+### Services do front
+
+`BugService`:
 
 ```ts
-export interface BugResponse {
-  id: number;
-  titulo: string;
-  linguagem: string;
-  mensagemErro?: string | null;
-  descricao: string;
-  causa?: string | null;
-  solucao?: string | null;
-  status: string;
-  dataCriacao: string;
-  dataAtualizacao?: string | null;
-}
+listar(status?: string, linguagem?: string): Observable<BugResponse[]>
+buscarPorId(id: number): Observable<BugResponse>
+criar(request: CriarBugRequest): Observable<BugResponse>
 ```
 
-Tambem vou criar:
+`AuthService`:
 
-- `CriarBugRequest`
-- `AtualizarBugRequest`
-- `LoginRequest`
-- `MeResponse`
+```ts
+login(request: LoginRequest): Observable<MeResponse>
+logout(): Observable<void>
+me(): Observable<MeResponse>
+```
 
-Services:
+Como o auth usa cookie, as chamadas de login/logout/me e rotas protegidas usam:
 
-- `AuthService`: login, logout e `me`
-- `BugService`: CRUD dos bugs
-- `AuthGuard`: proteger rotas admin
+```ts
+{ withCredentials: true }
+```
 
-Ordem que faz sentido:
+### Fluxo de login no front
 
-1. Criar o app Angular.
-2. Configurar `apiUrl` para `http://localhost:5041`.
-3. Criar os modelos TypeScript.
-4. Criar `AuthService` usando `withCredentials: true`.
-5. Criar `BugService`.
-6. Fazer lista publica.
-7. Fazer detalhe publico.
-8. Fazer login.
-9. Fazer guard das rotas admin.
-10. Fazer criar e editar bug.
-11. Fazer resolver e deletar.
-12. Ajustar carregamento, erro e tela vazia.
+```text
+AuthPanelComponent
+  chama authService.me() ao abrir
+  se estiver logado, mostra usuario
+  se nao estiver, mostra formulario
+
+Login
+  envia username/senha
+  backend valida
+  backend cria cookie museu_admin
+  navegador guarda cookie
+
+Criar bug
+  Angular manda POST /api/bugs com withCredentials
+  backend le cookie
+  backend confere role Admin
+  se estiver certo, cria bug
+```
+
+## Proximos passos do front
+
+O proximo passo mais natural e ligar os pads do `GrooveStripComponent` aos filtros que o backend ja suporta.
+
+Endpoint ja existente:
+
+```http
+GET /api/bugs?status=Aberto
+GET /api/bugs?status=Resolvido
+GET /api/bugs?linguagem=C%23
+GET /api/bugs?linguagem=SQL
+```
+
+Ideia dos pads:
+
+```text
+A1 -> Todos
+A2 -> Abertos
+B1 -> Resolvidos
+B2 -> C#
+C1 -> SQL
+C2 -> Angular
+D1 -> API
+D2 -> Auth
+```
+
+Depois disso, ainda falta:
+
+- editar bug pelo front
+- marcar bug como resolvido pelo front
+- deletar bug pelo front
+- melhorar tela vazia/loading/erro
+- criar filtros melhores por linguagem
+- remover ou ajustar mocks antigos
+- pensar em rotas Angular quando fizer sentido
+- proteger areas admin com guard, se o app ganhar rotas admin separadas
 
 ## Aprendizado importante
 
@@ -621,6 +764,7 @@ Isso importa porque nem todo metodo C# consegue virar SQL.
 ## Proximos passos
 
 - adicionar testes de API para auth
-- comecar o front em Angular
-- testar o fluxo inteiro com cookie
+- ligar os pads do `GrooveStripComponent` aos filtros reais da API
+- implementar editar, resolver e deletar bug pelo front
+- testar o fluxo inteiro com cookie no navegador
 - revisar hardening de producao antes de publicar

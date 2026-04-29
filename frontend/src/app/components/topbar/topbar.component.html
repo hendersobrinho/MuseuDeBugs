@@ -1,0 +1,37 @@
+<header class="topbar">
+  <div class="led-row" aria-hidden="true">
+      <span class="led green"></span>
+      <span class="led amber"></span>
+      <span class="led violet"></span>
+    </div>
+  <div>
+    <p class="eyebrow">Arquivos Técnicos</p>
+    <h1>Acervo de Bugs</h1>
+  </div>
+
+  <div class="topbar-actions">
+    <label class="search-box">
+      <span aria-hidden="true">⌕</span>
+      <input
+        type="number"
+        min="1"
+        placeholder="Buscar bug por id..."
+        [ngModel]="bugId"
+        (ngModelChange)="aoAlterarBugId($event)"
+        (keydown.enter)="buscarBugPorId()"
+      />
+    </label>
+
+    <button class="primary-button" type="button" (click)="buscarBugPorId()">
+      <span>Buscar</span>
+    </button>
+  </div>
+
+  @if (carregandoBusca) {
+    <p>Buscando bug...</p>
+  }
+
+  @if (erroBusca) {
+    <p>{{ erroBusca }}</p>
+  }
+</header>

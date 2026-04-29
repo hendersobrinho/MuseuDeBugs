@@ -1,0 +1,60 @@
+<aside class="right-panel" aria-label="Resumo do acervo">
+  <app-bug-create-panel
+    [openSignal]="openCreateSignal"
+    (bugCriado)="handleBugCriado($event)"
+  />
+  <section class="panel-block">
+    <div class="panel-title">
+      <span aria-hidden="true">▦</span>
+      <h2>Estatisticas</h2>
+    </div>
+
+    <div class="stats-grid">
+      <div>
+        <strong>{{ isLoading || hasError ? '--' : totalBugs }}</strong>
+        <span>Total</span>
+      </div>
+      <div>
+        <strong>{{ isLoading || hasError ? '--' : resolvedBugs }}</strong>
+        <span>Resolvidos</span>
+      </div>
+      <div>
+        <strong>{{ isLoading || hasError ? '--' : openBugs }}</strong>
+        <span>Abertos</span>
+      </div>
+      <div>
+        <strong>{{ isLoading || hasError ? '--' : languageStats.length }}</strong>
+        <span>Linguagens</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel-block language-panel">
+    <div class="panel-title">
+      <span aria-hidden="true">▤</span>
+      <h2>Linguagens</h2>
+    </div>
+    @if (isLoading) {
+      <p>Carregando...</p>
+    } @else if (hasError) {
+      <p>Nao foi possivel carregar.</p>
+    } @else if (languageStats.length === 0) {
+      <p>Nenhuma linguagem cadastrada.</p>
+    } @else {
+      @for (language of languageStats; track language.name) {
+        <div class="language-row">
+          <span>{{ language.name }}</span>
+          <meter [value]="language.count" [max]="totalBugs"></meter>
+        </div>
+      }
+    }
+  </section>
+
+  <section class="panel-block learning-panel">
+    <div class="panel-title">
+      <span aria-hidden="true">✓</span>
+      <h2>Aprendizado</h2>
+    </div>
+    <p>Nada nesse mundo é fácil.</p>
+  </section>
+</aside>

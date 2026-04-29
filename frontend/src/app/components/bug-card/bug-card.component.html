@@ -1,0 +1,27 @@
+<article class="bug-card" [class]="'bug-card signal-' + bug.signal">
+  <div class="card-topline">
+    <span class="language-chip">{{ bug.language }}</span>
+    <span class="status-pill" [class]="statusClass + ' status-pill'">{{ bug.status }}</span>
+  </div>
+
+  <h2>{{ bug.title }}</h2>
+
+  <div class="error-snippet">
+    <span aria-hidden="true">▣</span>
+    <code>{{ bug.errorMessage }}</code>
+  </div>
+
+  <p>{{ bug.cause }}</p>
+
+  <footer class="card-footer">
+    <span>
+      <span aria-hidden="true">◷</span>
+      {{ bug.updatedAt }}
+    </span>
+    <div class="card-buttons" aria-hidden="true">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+  </footer>
+</article>

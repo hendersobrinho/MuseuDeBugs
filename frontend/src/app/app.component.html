@@ -1,0 +1,17 @@
+<div class="app-shell">
+  <app-sidebar />
+
+  <main class="workspace">
+    <app-topbar
+      (buscaPorIdConcluida)="bugBuscado = $event"
+      (registrarBugSolicitado)="handleRegistrarBugSolicitado()"
+    />
+    <app-groove-strip />
+    <app-bug-grid [bugBuscado]="bugBuscado" [bugCriado]="bugCriado" />
+  </main>
+
+  <app-right-panel
+    [openCreateSignal]="createPanelSignal"
+    (bugCriado)="handleBugCriado($event)"
+  />
+</div>

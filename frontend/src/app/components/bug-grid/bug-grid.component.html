@@ -1,0 +1,13 @@
+<section class="bug-grid" aria-label="Lista de bugs">
+  @if (isLoading) {
+    <p class="state-message">Carregando bugs...</p>
+  } @else if (errorMessage) {
+    <p class="state-message">{{ errorMessage }}</p>
+  } @else if (bugs.length === 0) {
+    <p class="state-message">Nenhum bug encontrado.</p>
+  } @else {
+    @for (bug of bugs; track bug.id) {
+      <app-bug-card [bug]="bug" />
+    }
+  }
+</section>
