@@ -5,6 +5,7 @@ import { GrooveStripComponent } from './components/groove-strip/groove-strip.com
 import { RightPanelComponent } from './components/right-panel/right-panel.component';
 import { SidebarComponent } from './components/sidebar/sidebar.component';
 import { TopbarComponent } from './components/topbar/topbar.component';
+import { BugFilter } from './models/bug-filter';
 
 @Component({
   selector: 'app-root',
@@ -22,6 +23,8 @@ import { TopbarComponent } from './components/topbar/topbar.component';
 export class AppComponent {
   bugBuscado: BugResponse | null = null;
   bugCriado: BugResponse | null = null;
+  activeFilter: BugFilter | null = null;
+  termoBusca = '';
   createPanelSignal = 0;
 
   handleRegistrarBugSolicitado(): void {
@@ -31,5 +34,10 @@ export class AppComponent {
   handleBugCriado(bug: BugResponse): void {
     this.bugBuscado = null;
     this.bugCriado = bug;
+  }
+
+  handleTermoBuscaAlterado(termo: string): void {
+    this.termoBusca = termo;
+    this.bugBuscado = null;
   }
 }

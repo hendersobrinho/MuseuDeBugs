@@ -1,8 +1,14 @@
-<section class="groove-strip" aria-label="Indicadores do acervo">
+<section class="groove-strip" aria-label="Filtros do acervo">
   <div class="pad-bank">
-    @for (pad of pads; track pad; let index = $index) {
-      <button class="pad" [class]="'pad pad-' + (index % 4)">
-        <span>{{ pad }}</span>
+    @for (pad of pads; track pad.code; let index = $index) {
+      <button
+        type="button"
+        class="pad pad-{{ index % 4 }}"
+        [class.active]="activeFilter.code === pad.code"
+        (click)="selectFilter(pad)"
+      >
+        <span>{{ pad.code }}</span>
+        <small>{{ pad.label }}</small>
       </button>
     }
   </div>

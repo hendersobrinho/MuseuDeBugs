@@ -11,18 +11,20 @@ import { BugService } from '../../services/bug.service';
 })
 export class TopbarComponent {
   @Output() buscaPorIdConcluida = new EventEmitter<BugResponse | null>();
+  @Output() termoBuscaAlterado = new EventEmitter<string>();
   @Output() registrarBugSolicitado = new EventEmitter<void>();
 
-  bugId = '';
+  termoBusca = '';
   erroBusca = '';
   carregandoBusca = false;
 
   constructor(private readonly bugService: BugService) {}
 
-  aoAlterarBugId(value: string): void {
-    this.bugId = `${value ?? ''}`;
+  aoAlterarTermoBusca(value: string): void {
+    this.termoBusca = `${value ?? ''}`;
+    this.termoBuscaAlterado.emit(this.termoBusca.trim());
 
-    if (this.bugId.trim() === '') {
+    if (this.termoBusca.trim() === '') {
       this.erroBusca = '';
       this.carregandoBusca = false;
       this.buscaPorIdConcluida.emit(null);
@@ -30,7 +32,7 @@ export class TopbarComponent {
   }
 
   buscarBugPorId(): void {
-    const value = this.bugId.trim();
+    const value = this.termoBusca.trim();
 
     if (value === '') {
       this.erroBusca = '';
@@ -41,7 +43,7 @@ export class TopbarComponent {
     const id = Number(value);
 
     if (!Number.isInteger(id) || id <= 0) {
-      this.erroBusca = 'Digite um id valido.';
+      this.erroBusca = '';
       this.buscaPorIdConcluida.emit(null);
       return;
     }

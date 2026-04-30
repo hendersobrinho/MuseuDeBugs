@@ -13,11 +13,10 @@
     <label class="search-box">
       <span aria-hidden="true">⌕</span>
       <input
-        type="number"
-        min="1"
-        placeholder="Buscar bug por id..."
-        [ngModel]="bugId"
-        (ngModelChange)="aoAlterarBugId($event)"
+        type="search"
+        placeholder="Buscar por id ou nome..."
+        [ngModel]="termoBusca"
+        (ngModelChange)="aoAlterarTermoBusca($event)"
         (keydown.enter)="buscarBugPorId()"
       />
     </label>

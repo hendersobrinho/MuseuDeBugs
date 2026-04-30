@@ -1,13 +1,22 @@
+
 <div class="app-shell">
   <app-sidebar />
 
   <main class="workspace">
     <app-topbar
       (buscaPorIdConcluida)="bugBuscado = $event"
+      (termoBuscaAlterado)="handleTermoBuscaAlterado($event)"
       (registrarBugSolicitado)="handleRegistrarBugSolicitado()"
     />
-    <app-groove-strip />
-    <app-bug-grid [bugBuscado]="bugBuscado" [bugCriado]="bugCriado" />
+    <app-groove-strip (filterSelected)="activeFilter = $event" />
+
+    <app-bug-grid
+      [bugBuscado]="bugBuscado"
+      [bugCriado]="bugCriado"
+      [activeFilter]="activeFilter"
+      [termoBusca]="termoBusca"
+    />
+
   </main>
 
   <app-right-panel

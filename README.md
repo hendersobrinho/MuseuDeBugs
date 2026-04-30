@@ -35,13 +35,15 @@ Hoje o backend ja faz bastante coisa:
 O frontend Angular tambem ja saiu da fase de maquete:
 
 - lista bugs reais vindos da API
-- busca bug por id
+- busca bug por id e tambem filtra a lista por texto digitado
+- filtra o acervo por status e linguagem pelos pads do `GrooveStripComponent`
 - mostra cards com dados vindos do banco
 - mostra estatisticas reais no painel lateral
 - mostra linguagens mais usadas com base nos bugs cadastrados
 - tem login admin por cookie na sidebar
 - cria bug pelo painel lateral quando o admin esta logado
 - atualiza a lista e as estatisticas depois de criar um bug
+- tem logo propria na sidebar e favicon do projeto
 - usa `HttpClient`, services, models e componentes standalone
 
 Ou seja: a API ja nao esta mais so no "hello world", e o front ja conversa com ela de verdade.
@@ -126,6 +128,15 @@ MuseuDeBugs.Tools/
   Program.cs
 
 frontend/
+  public/
+    apple-touch-icon.png
+    brand-face.svg
+    favicon.ico
+    favicon.svg
+    favicon-16x16.png
+    favicon-32x32.png
+    favicon-512x512.png
+    museu-de-bugs-logo.png
   src/
     app/
       components/
@@ -140,6 +151,9 @@ frontend/
       config/
         api.config.ts
       models/
+        atualizar-bug-response.ts
+        bug-card.ts
+        bug-filter.ts
         bug-response.ts
         criar-bug-request.ts
         login-request.ts
@@ -626,18 +640,21 @@ Hoje o front ja faz:
 
 - lista bugs reais com `GET /api/bugs`
 - busca bug por id com `GET /api/bugs/{id}`
+- filtra a lista por texto no proprio front
+- filtra a lista por status e linguagem usando os pads do topo
 - login admin com `POST /api/auth/login`
 - verifica sessao com `GET /api/auth/me`
 - logout com `POST /api/auth/logout`
 - cria bug com `POST /api/bugs`
 - atualiza o grid depois de criar bug
 - atualiza estatisticas depois de criar bug
+- usa assets proprios de marca, favicon e apple touch icon
 
 ### Componentes principais
 
 ```text
 SidebarComponent
-  mostra a marca do app
+  mostra a marca do app usando a logo
   mostra o painel de login admin
 
 AuthPanelComponent
@@ -646,15 +663,16 @@ AuthPanelComponent
   botao de logout
 
 TopbarComponent
-  busca bug por id
+  recebe texto de busca
+  quando o texto e numerico, tambem busca bug por id na API
 
 GrooveStripComponent
-  hoje e visual
-  proximo passo: virar filtros por status e linguagem
+  controla os filtros rapidos por status e linguagem
 
 BugGridComponent
   lista cards de bugs
   mostra resultado da busca por id
+  aplica filtros e busca textual
   recebe bug criado e atualiza a lista
 
 BugCardComponent
@@ -715,40 +733,19 @@ Criar bug
 
 ## Proximos passos do front
 
-O proximo passo mais natural e ligar os pads do `GrooveStripComponent` aos filtros que o backend ja suporta.
-
-Endpoint ja existente:
-
-```http
-GET /api/bugs?status=Aberto
-GET /api/bugs?status=Resolvido
-GET /api/bugs?linguagem=C%23
-GET /api/bugs?linguagem=SQL
-```
-
-Ideia dos pads:
-
-```text
-A1 -> Todos
-A2 -> Abertos
-B1 -> Resolvidos
-B2 -> C#
-C1 -> SQL
-C2 -> Angular
-D1 -> API
-D2 -> Auth
-```
-
-Depois disso, ainda falta:
+O front ja esta conectado e navegavel, mas ainda tem espaco para evoluir. As proximas melhorias mais naturais sao:
 
 - editar bug pelo front
 - marcar bug como resolvido pelo front
 - deletar bug pelo front
-- melhorar tela vazia/loading/erro
+- melhorar telas de vazio, loading e erro
 - criar filtros melhores por linguagem
+- decidir se os filtros do grid continuam locais ou passam a chamar os filtros da API
 - remover ou ajustar mocks antigos
 - pensar em rotas Angular quando fizer sentido
 - proteger areas admin com guard, se o app ganhar rotas admin separadas
+- revisar responsividade com mais calma
+- quebrar alguns componentes quando eles comecarem a crescer demais
 
 ## Aprendizado importante
 
@@ -764,7 +761,20 @@ Isso importa porque nem todo metodo C# consegue virar SQL.
 ## Proximos passos
 
 - adicionar testes de API para auth
-- ligar os pads do `GrooveStripComponent` aos filtros reais da API
 - implementar editar, resolver e deletar bug pelo front
 - testar o fluxo inteiro com cookie no navegador
+- revisar e padronizar nomes internos para ingles antes de publicar
 - revisar hardening de producao antes de publicar
+
+## Checklist antes de deploy publico
+
+Antes de colocar no ar de verdade, eu quero tratar isso como uma etapa separada:
+
+- refatorar nomes de classes, DTOs, variaveis e metodos para ingles
+- manter o nome `MuseuDeBugs` como identidade do projeto, se fizer sentido
+- revisar variaveis de ambiente de producao
+- configurar HTTPS
+- trocar CORS local por dominio real
+- garantir que Swagger nao exponha nada sensivel
+- revisar banco, usuario, senha forte, acesso por IP e backup
+- testar login, logout, criacao e rotas protegidas no navegador

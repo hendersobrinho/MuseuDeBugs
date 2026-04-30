@@ -1,4 +1,5 @@
 import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { BugFilter } from '../../models/bug-filter';
 
 import { BugCard } from '../../models/bug-card';
 import { BugResponse } from '../../models/bug-response';
@@ -14,6 +15,9 @@ import { BugCardComponent } from '../bug-card/bug-card.component';
 export class BugGridComponent implements OnInit, OnChanges {
   @Input() bugBuscado: BugResponse | null = null;
   @Input() bugCriado: BugResponse | null = null;
+  @Input() activeFilter: BugFilter | null = null;
+  @Input() termoBusca = '';
+
 
   bugs: BugCard[] = [];
   private todosOsBugs: BugCard[] = [];
@@ -32,8 +36,8 @@ export class BugGridComponent implements OnInit, OnChanges {
       this.adicionarBugCriado(this.bugCriado);
     }
 
-    if (changes['bugBuscado']) {
-      this.aplicarBuscaPorId();
+    if (changes['bugBuscado'] || changes['activeFilter'] || changes['termoBusca']) {
+      this.aplicarFiltros();
     }
   }
 
@@ -44,7 +48,7 @@ export class BugGridComponent implements OnInit, OnChanges {
     this.bugService.listar().subscribe({
       next: (bugsDaApi) => {
         this.todosOsBugs = bugsDaApi.map((bug) => this.converterParaCard(bug));
-        this.aplicarBuscaPorId();
+        this.aplicarFiltros();
         this.isLoading = false;
       },
       error: () => {
@@ -54,13 +58,49 @@ export class BugGridComponent implements OnInit, OnChanges {
     });
   }
 
-  private aplicarBuscaPorId(): void {
+  private aplicarFiltros(): void {
     if (this.bugBuscado) {
       this.bugs = [this.converterParaCard(this.bugBuscado)];
       return;
     }
 
-    this.bugs = this.todosOsBugs;
+    let bugsFiltrados = this.todosOsBugs;
+
+    if (this.activeFilter?.status) {
+      bugsFiltrados = bugsFiltrados.filter((bug) =>
+        bug.status === this.activeFilter?.status
+      );
+    }
+
+    if (this.activeFilter?.linguagem) {
+      bugsFiltrados = bugsFiltrados.filter((bug) =>
+        bug.language === this.activeFilter?.linguagem
+      );
+    }
+
+    const termoNormalizado = this.termoBusca.trim().toLowerCase();
+
+    if (termoNormalizado) {
+      bugsFiltrados = bugsFiltrados.filter((bug) =>
+        this.normalizarTexto([
+          bug.id,
+          bug.title,
+          bug.language,
+          bug.status,
+          bug.errorMessage,
+          bug.cause
+        ].join(' ')).includes(this.normalizarTexto(termoNormalizado))
+      );
+    }
+
+    this.bugs = bugsFiltrados;
+  }
+
+  private normalizarTexto(value: string): string {
+    return value
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '');
   }
 
   private adicionarBugCriado(bug: BugResponse): void {
@@ -70,9 +110,7 @@ export class BugGridComponent implements OnInit, OnChanges {
       ...this.todosOsBugs.filter((currentBug) => currentBug.id !== card.id)
     ];
 
-    if (!this.bugBuscado) {
-      this.bugs = this.todosOsBugs;
-    }
+    this.aplicarFiltros();
   }
 
   private converterParaCard(bug: BugResponse): BugCard {
