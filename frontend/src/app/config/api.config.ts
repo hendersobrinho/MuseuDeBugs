@@ -1,4 +1,4 @@
-import { environment } from "../../environments/environment";
+import { environment } from '../../environments/environment';
 
 declare global {
   interface Window {
@@ -8,4 +8,5 @@ declare global {
   }
 }
 
-export const API_URL = window.MUSEU_DEBUGS_CONFIG?.apiUrl ?? environment.apiUrl;
+export const API_URL =
+  window.MUSEU_DEBUGS_CONFIG?.apiUrl ?? environment.apiUrl;
