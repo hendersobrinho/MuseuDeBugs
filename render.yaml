@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: museu-de-bugs-api
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: ConnectionStrings__DefaultConnection
+        sync: false
+      - key: Admin__Username
+        sync: false
+      - key: Admin__PasswordHash
+        sync: false
+      - key: Cors__AllowedOrigins__0
+        sync: false

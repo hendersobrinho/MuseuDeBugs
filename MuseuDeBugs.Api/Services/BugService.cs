@@ -14,12 +14,12 @@ namespace MuseuDeBugs.Api.Services
         public BugResponse CriarBug(CriarBugRequest request)
         {
             var bug = new Bug(
-                request.Titulo, 
-                request.Linguagem, 
-                request.MensagemErro, 
-                request.Descricao, 
-                request.Causa, 
-                request.Solucao);
+                request.Titulo.Trim(),
+                NormalizarLinguagem(request.Linguagem),
+                NormalizarTextoOpcional(request.MensagemErro),
+                request.Descricao.Trim(),
+                NormalizarTextoOpcional(request.Causa),
+                NormalizarTextoOpcional(request.Solucao));
         
             _context.Bugs.Add(bug);
             _context.SaveChanges();
@@ -57,7 +57,8 @@ namespace MuseuDeBugs.Api.Services
             }
             if (!string.IsNullOrWhiteSpace(linguagem))
             {
-                query = query.Where(bug => bug.Linguagem == linguagem);
+                var linguagemNormalizada = NormalizarLinguagem(linguagem).ToLower();
+                query = query.Where(bug => bug.Linguagem.ToLower() == linguagemNormalizada);
             }
 
             var bugs = query.ToList();
@@ -91,12 +92,12 @@ namespace MuseuDeBugs.Api.Services
             if (bug == null) { return null; }
 
             bug.Atualizar(
-                request.Titulo,
-                request.Linguagem,
-                request.MensagemErro,
-                request.Descricao,
-                request.Causa,
-                request.Solucao);
+                request.Titulo.Trim(),
+                NormalizarLinguagem(request.Linguagem),
+                NormalizarTextoOpcional(request.MensagemErro),
+                request.Descricao.Trim(),
+                NormalizarTextoOpcional(request.Causa),
+                NormalizarTextoOpcional(request.Solucao));
 
             _context.SaveChanges();
 
@@ -113,6 +114,26 @@ namespace MuseuDeBugs.Api.Services
             _context.SaveChanges();
 
             return true;
+        }
+
+        private static string NormalizarLinguagem(string linguagem)
+        {
+            var normalizada = linguagem.Trim();
+
+            return normalizada.ToLowerInvariant() switch
+            {
+                "c#" or "csharp" or "c-sharp" => "C#",
+                "c++" or "cpp" => "C++",
+                "js" or "javascript" => "JavaScript",
+                "ts" or "typescript" => "TypeScript",
+                _ => normalizada
+            };
+        }
+
+        private static string? NormalizarTextoOpcional(string? texto)
+        {
+            var normalizado = texto?.Trim() ?? string.Empty;
+            return normalizado.Length > 0 ? normalizado : null;
         }
     }
 }

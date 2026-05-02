@@ -285,7 +285,8 @@ h1 {
 }
 
 .primary-button:disabled,
-.secondary-button:disabled {
+.secondary-button:disabled,
+.danger-button:disabled {
   opacity: 0.62;
   cursor: not-allowed;
 }
@@ -308,6 +309,26 @@ h1 {
 .secondary-button:hover {
   border-color: rgba(122, 183, 255, 0.34);
   background: rgba(122, 183, 255, 0.08);
+}
+
+.danger-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  min-height: 2.55rem;
+  padding: 0 1rem;
+  color: var(--red);
+  font-weight: 700;
+  border: 1px solid rgba(224, 122, 122, 0.34);
+  border-radius: 8px;
+  background: rgba(224, 122, 122, 0.08);
+  cursor: pointer;
+}
+
+.danger-button:hover {
+  border-color: rgba(224, 122, 122, 0.52);
+  background: rgba(224, 122, 122, 0.12);
 }
 
 .led-row {
@@ -483,6 +504,19 @@ h1 {
   min-height: 16rem;
   padding: 1rem;
   overflow: hidden;
+  text-align: left;
+  cursor: pointer;
+}
+
+.bug-card:hover,
+.bug-card:focus-visible {
+  border-color: rgba(122, 183, 255, 0.42);
+  transform: translateY(-1px);
+}
+
+.bug-card:focus-visible {
+  outline: 3px solid rgba(122, 183, 255, 0.24);
+  outline-offset: 2px;
 }
 
 .bug-card::before {
@@ -616,6 +650,127 @@ h1 {
   border: 1px solid var(--border);
   border-radius: 3px;
   background: var(--surface-higher);
+}
+
+.bug-detail-backdrop {
+  position: fixed;
+  z-index: 20;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+  background: rgba(4, 8, 14, 0.74);
+  backdrop-filter: blur(8px);
+}
+
+.bug-detail-panel {
+  display: grid;
+  gap: 1rem;
+  width: min(46rem, 100%);
+  max-height: min(42rem, calc(100vh - 3rem));
+  padding: 1.1rem;
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(31, 43, 61, 0.98), rgba(16, 23, 34, 0.99)),
+    var(--surface);
+  box-shadow: 0 1.5rem 4rem rgba(0, 0, 0, 0.42);
+}
+
+.bug-detail-header,
+.bug-detail-footer,
+.bug-detail-meta {
+  display: flex;
+  gap: 0.85rem;
+}
+
+.bug-detail-header,
+.bug-detail-footer {
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.bug-detail-header h2 {
+  margin: 0.2rem 0 0;
+  font-size: 1.35rem;
+  line-height: 1.25;
+}
+
+.icon-button {
+  display: inline-grid;
+  flex: 0 0 auto;
+  width: 2.35rem;
+  height: 2.35rem;
+  place-items: center;
+  color: var(--text-soft);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: rgba(16, 23, 34, 0.86);
+  cursor: pointer;
+}
+
+.icon-button:hover,
+.icon-button:focus-visible {
+  color: var(--text);
+  border-color: rgba(122, 183, 255, 0.42);
+}
+
+.bug-detail-meta {
+  flex-wrap: wrap;
+}
+
+.bug-detail-section {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.bug-detail-section h3 {
+  margin: 0;
+  color: var(--text-muted);
+  font-family: var(--mono);
+  font-size: 0.76rem;
+  text-transform: uppercase;
+}
+
+.bug-detail-section p {
+  margin: 0;
+  color: var(--text-soft);
+  line-height: 1.65;
+  white-space: pre-wrap;
+}
+
+.detail-snippet code {
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+  word-break: break-word;
+}
+
+.bug-detail-dates {
+  display: grid;
+  gap: 0.35rem;
+  color: var(--text-muted);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+}
+
+.bug-detail-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  justify-content: flex-end;
+}
+
+.bug-detail-actions .primary-button,
+.bug-detail-actions .secondary-button,
+.bug-detail-actions .danger-button {
+  min-width: 0;
+}
+
+.bug-edit-form {
+  display: grid;
+  gap: 0.75rem;
 }
 
 .right-panel {
@@ -1006,6 +1161,16 @@ meter::-moz-meter-bar {
   .search-box,
   .primary-button {
     width: 100%;
+  }
+
+  .bug-detail-backdrop {
+    padding: 0.75rem;
+  }
+
+  .bug-detail-header,
+  .bug-detail-footer {
+    align-items: stretch;
+    flex-direction: column;
   }
 
   .stats-grid {

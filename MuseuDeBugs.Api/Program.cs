@@ -1,6 +1,7 @@
 using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.HttpOverrides;
 using MuseuDeBugs.Api.Data;
 using MuseuDeBugs.Api.Options;
 using MuseuDeBugs.Api.Security;
@@ -9,6 +10,27 @@ using MuseuDeBugs.Api.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 const string politicaCors = "PermitirFrontend";
+var allowedCorsOrigins = builder.Configuration
+    .GetSection("Cors:AllowedOrigins")
+    .Get<string[]>() ?? [];
+
+if (builder.Environment.IsDevelopment())
+{
+    allowedCorsOrigins = [
+        .. allowedCorsOrigins,
+        "http://localhost:5173",
+        "http://localhost:4200"
+    ];
+}
+
+allowedCorsOrigins = allowedCorsOrigins
+    .Distinct(StringComparer.OrdinalIgnoreCase)
+    .ToArray();
+
+if (allowedCorsOrigins.Length == 0)
+{
+    throw new InvalidOperationException("Configure Cors:AllowedOrigins para liberar o frontend em producao.");
+}
 
 // Controllers e documentacao da API.
 builder.Services.AddControllers();
@@ -26,6 +48,13 @@ builder.Services.Configure<AdminOptions>(
     builder.Configuration.GetSection("Admin")
 );
 
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.KnownIPNetworks.Clear();
+    options.KnownProxies.Clear();
+});
+
 // Autenticacao por cookie para manter o admin logado apos o login.
 builder.Services
     .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
@@ -33,7 +62,9 @@ builder.Services
     {
         options.Cookie.Name = "museu_admin";
         options.Cookie.HttpOnly = true;
-        options.Cookie.SameSite = SameSiteMode.Lax;
+        options.Cookie.SameSite = builder.Environment.IsDevelopment()
+            ? SameSiteMode.Lax
+            : SameSiteMode.None;
         options.Cookie.SecurePolicy = builder.Environment.IsDevelopment()
             ? CookieSecurePolicy.SameAsRequest
             : CookieSecurePolicy.Always;
@@ -76,25 +107,24 @@ builder.Services.AddCors(options =>
     options.AddPolicy(politicaCors, policy =>
     {
         policy
-            .WithOrigins(
-                "http://localhost:5173",
-                "http://localhost:4200")
+            .WithOrigins(allowedCorsOrigins)
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials();
     });
 });
 
-// Banco de dados MySQL via Entity Framework Core.
+// Banco de dados PostgreSQL via Entity Framework Core.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseMySql(
-        connectionString,
-        ServerVersion.AutoDetect(connectionString)
+    options.UseNpgsql(
+        builder.Configuration.GetConnectionString("DefaultConnection")
     ));
 
 var app = builder.Build();
+
+app.UseForwardedHeaders();
 
 app.Use(async (context, next) =>
 {
@@ -118,6 +148,14 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();
+}
+
+app.MapGet("/health", () => Results.Ok(new { status = "ok" }));
 
 // Pipeline HTTP: a ordem aqui importa.
 app.UseHttpsRedirection();

@@ -23,7 +23,7 @@ Hoje o backend ja faz bastante coisa:
 - marca bug como resolvido
 - deleta bug
 - filtra por status e linguagem
-- salva no MySQL usando Entity Framework Core
+- salva no PostgreSQL usando Entity Framework Core
 - valida os dados que chegam na API
 - tem login admin por cookie
 - protege rotas de escrita com `[Authorize(Roles = "Admin")]`
@@ -77,8 +77,8 @@ Escrita so com admin logado.
 - .NET 10
 - ASP.NET Core Web API
 - Entity Framework Core
-- Pomelo Entity Framework Core MySQL
-- MySQL
+- Npgsql Entity Framework Core PostgreSQL
+- PostgreSQL
 - Cookie Authentication
 - Authorization com role `Admin`
 - Rate Limiting do ASP.NET Core
@@ -135,7 +135,9 @@ frontend/
     favicon.svg
     favicon-16x16.png
     favicon-32x32.png
+    favicon-192x192.png
     favicon-512x512.png
+    favicon-1024x1024.png
     museu-de-bugs-logo.png
   src/
     app/
@@ -219,7 +221,7 @@ npm run build
 
 ## Banco local
 
-O projeto usa MySQL.
+O projeto usa PostgreSQL.
 
 A connection string local fica em:
 
@@ -234,7 +236,7 @@ Exemplo sem segredo real:
 ```json
 {
   "ConnectionStrings": {
-    "DefaultConnection": "server=localhost;port=3306;database=MuseuDeBugs;user=museu_user;password=SUA_SENHA_LOCAL"
+    "DefaultConnection": "Host=localhost;Port=5432;Database=MuseuDeBugs;Username=museu_user;Password=SUA_SENHA_LOCAL"
   }
 }
 ```
@@ -242,7 +244,7 @@ Exemplo sem segredo real:
 Para entrar no banco pelo terminal:
 
 ```bash
-mysql -u museu_user -p MuseuDeBugs
+psql "Host=localhost;Port=5432;Database=MuseuDeBugs;Username=museu_user"
 ```
 
 Consultas que ajudam:
@@ -301,6 +303,7 @@ O certo e configurar por variaveis de ambiente:
 Admin__Username=hnd
 Admin__PasswordHash=HASH_GERADO
 ConnectionStrings__DefaultConnection=CONNECTION_STRING_SEGURA
+Cors__AllowedOrigins__0=https://SEU_FRONTEND
 ASPNETCORE_ENVIRONMENT=Production
 ```
 
@@ -316,6 +319,39 @@ vira isso:
 
 ```text
 Admin:Username
+```
+
+No frontend em producao, ajuste o arquivo publicado `app-config.js` para apontar para a API:
+
+```js
+window.MUSEU_DEBUGS_CONFIG = {
+  apiUrl: 'https://SUA_API/api'
+};
+```
+
+## Deploy gratuito
+
+Uma opcao sem VPS:
+
+- Frontend: Vercel, usando `frontend/vercel.json`
+- Backend: Render, usando `Dockerfile` e `render.yaml`
+- Banco: Supabase PostgreSQL
+
+No Render, configure os segredos do serviço:
+
+```text
+ConnectionStrings__DefaultConnection=STRING_DO_SUPABASE
+Admin__Username=hnd
+Admin__PasswordHash=HASH_GERADO
+Cors__AllowedOrigins__0=https://SEU_FRONTEND.vercel.app
+```
+
+Depois que a API estiver no ar, ajuste `frontend/public/app-config.js` antes do deploy do front:
+
+```js
+window.MUSEU_DEBUGS_CONFIG = {
+  apiUrl: 'https://SUA_API.onrender.com/api'
+};
 ```
 
 ## Rotas publicas
@@ -555,7 +591,7 @@ Service
 AppDbContext
         |
         v
-MySQL
+PostgreSQL
 ```
 
 Separando as responsabilidades:

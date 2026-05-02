@@ -52,6 +52,23 @@ public class BugServiceTests
     }
 
     [Fact]
+    public void CriarBug_DeveNormalizarLinguagemETextos()
+    {
+        var options = CriarOptions();
+        using var context = CriarContexto(options);
+        var service = new BugService(context);
+
+        var response = service.CriarBug(CriarRequest(
+            titulo: "  Titulo com espacos  ",
+            linguagem: "csharp",
+            descricao: "  Descricao com tamanho suficiente.  "));
+
+        Assert.Equal("Titulo com espacos", response.Titulo);
+        Assert.Equal("C#", response.Linguagem);
+        Assert.Equal("Descricao com tamanho suficiente.", response.Descricao);
+    }
+
+    [Fact]
     public void BuscarPorId_DeveRetornarBug_QuandoIdExiste()
     {
         var options = CriarOptions();
@@ -134,10 +151,12 @@ public class BugServiceTests
 
         var bugsResolvidos = service.ListarBugs("Resolvido", null);
         var bugsSql = service.ListarBugs(null, "SQL");
+        var bugsSqlMinusculo = service.ListarBugs(null, "sql");
 
         Assert.Single(bugsResolvidos);
         Assert.Equal("Resolvido", bugsResolvidos[0].Status);
         Assert.Equal(2, bugsSql.Count);
+        Assert.Equal(2, bugsSqlMinusculo.Count);
         Assert.All(bugsSql, bug => Assert.Equal("SQL", bug.Linguagem));
     }
 

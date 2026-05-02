@@ -9,7 +9,7 @@
   </button>
 
   @if (isOpen) {
-    <form class="create-form" (ngSubmit)="salvar()">
+    <form class="create-form" (ngSubmit)="salvar()" novalidate>
       <label class="create-field">
         <span>Titulo</span>
         <input
@@ -18,6 +18,7 @@
           maxlength="120"
           required
           [(ngModel)]="form.titulo"
+          (ngModelChange)="onFormInput()"
         />
       </label>
 
@@ -29,6 +30,7 @@
           maxlength="50"
           required
           [(ngModel)]="form.linguagem"
+          (ngModelChange)="onFormInput()"
         />
       </label>
 
@@ -39,6 +41,7 @@
           rows="3"
           maxlength="500"
           [(ngModel)]="form.mensagemErro"
+          (ngModelChange)="onFormInput()"
         ></textarea>
       </label>
 
@@ -50,6 +53,7 @@
           maxlength="2000"
           required
           [(ngModel)]="form.descricao"
+          (ngModelChange)="onFormInput()"
         ></textarea>
       </label>
 
@@ -60,6 +64,7 @@
           rows="3"
           maxlength="2000"
           [(ngModel)]="form.causa"
+          (ngModelChange)="onFormInput()"
         ></textarea>
       </label>
 
@@ -70,6 +75,7 @@
           rows="3"
           maxlength="2000"
           [(ngModel)]="form.solucao"
+          (ngModelChange)="onFormInput()"
         ></textarea>
       </label>
 

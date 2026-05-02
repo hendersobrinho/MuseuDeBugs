@@ -1,12 +1,8 @@
-export interface AtualizarBugRequest{
-  id: number;
+export interface AtualizarBugRequest {
   titulo: string;
   linguagem: string;
   mensagemErro?: string | null;
   descricao: string;
   causa?: string | null;
   solucao?: string | null;
-  status: string;
-  dataCriacao: string;
-  dataAtualizacao?: string | null;
 }

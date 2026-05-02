@@ -8,7 +8,10 @@ export interface BugCard {
   language: string;
   status: BugStatus;
   errorMessage: string;
+  description: string;
   cause: string;
+  solution: string;
+  createdAt: string;
   updatedAt: string;
   signal: BugSignal;
 }

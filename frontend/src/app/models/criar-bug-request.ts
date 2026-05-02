@@ -1,4 +1,4 @@
-export interface CriarBugRequest{
+export interface CriarBugRequest {
   titulo: string;
   linguagem: string;
   mensagemErro?: string | null;

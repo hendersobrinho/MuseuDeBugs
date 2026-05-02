@@ -15,12 +15,16 @@
       [bugCriado]="bugCriado"
       [activeFilter]="activeFilter"
       [termoBusca]="termoBusca"
+      (bugAlterado)="handleBugAlterado($event)"
+      (bugDeletado)="handleBugDeletado($event)"
     />
 
   </main>
 
   <app-right-panel
     [openCreateSignal]="createPanelSignal"
+    [bugAtualizado]="bugAlterado"
+    [bugDeletadoId]="bugDeletadoId"
     (bugCriado)="handleBugCriado($event)"
   />
 </div>

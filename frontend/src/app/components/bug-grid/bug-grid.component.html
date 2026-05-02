@@ -7,7 +7,183 @@
     <p class="state-message">Nenhum bug encontrado.</p>
   } @else {
     @for (bug of bugs; track bug.id) {
-      <app-bug-card [bug]="bug" />
+      <app-bug-card [bug]="bug" (bugSelected)="selectBug($event)" />
     }
   }
 </section>
+
+@if (selectedBug) {
+  <div class="bug-detail-backdrop" role="presentation" (click)="closeDetails()">
+    <article
+      class="bug-detail-panel"
+      role="dialog"
+      aria-modal="true"
+      [attr.aria-label]="'Bug ' + selectedBug.id + ': ' + selectedBug.title"
+      (click)="$event.stopPropagation()"
+    >
+      <header class="bug-detail-header">
+        <div>
+          <p class="eyebrow">BUG #{{ selectedBug.id }}</p>
+          <h2>{{ selectedBug.title }}</h2>
+        </div>
+
+        <button class="icon-button" type="button" aria-label="Fechar detalhes" (click)="closeDetails()">
+          x
+        </button>
+      </header>
+
+      <div class="bug-detail-meta">
+        <span class="language-chip">{{ selectedBug.language }}</span>
+        <span class="status-pill" [class]="selectedBug.status === 'Resolvido' ? 'status-done status-pill' : 'status-open status-pill'">
+          {{ selectedBug.status }}
+        </span>
+      </div>
+
+      @if (isEditing) {
+        <form class="bug-edit-form" (ngSubmit)="updateSelectedBug()" novalidate>
+          <label class="create-field">
+            <span>Titulo</span>
+            <input
+              name="titulo"
+              type="text"
+              maxlength="120"
+              required
+              [(ngModel)]="editForm.titulo"
+              (ngModelChange)="onEditFormInput()"
+            />
+          </label>
+
+          <label class="create-field">
+            <span>Linguagem</span>
+            <input
+              name="linguagem"
+              type="text"
+              maxlength="50"
+              required
+              [(ngModel)]="editForm.linguagem"
+              (ngModelChange)="onEditFormInput()"
+            />
+          </label>
+
+          <label class="create-field">
+            <span>Mensagem de erro</span>
+            <textarea
+              name="mensagemErro"
+              rows="3"
+              maxlength="500"
+              [(ngModel)]="editForm.mensagemErro"
+              (ngModelChange)="onEditFormInput()"
+            ></textarea>
+          </label>
+
+          <label class="create-field">
+            <span>Descricao</span>
+            <textarea
+              name="descricao"
+              rows="4"
+              maxlength="2000"
+              required
+              [(ngModel)]="editForm.descricao"
+              (ngModelChange)="onEditFormInput()"
+            ></textarea>
+          </label>
+
+          <label class="create-field">
+            <span>Causa</span>
+            <textarea
+              name="causa"
+              rows="3"
+              maxlength="2000"
+              [(ngModel)]="editForm.causa"
+              (ngModelChange)="onEditFormInput()"
+            ></textarea>
+          </label>
+
+          <label class="create-field">
+            <span>Solucao</span>
+            <textarea
+              name="solucao"
+              rows="3"
+              maxlength="2000"
+              [(ngModel)]="editForm.solucao"
+              (ngModelChange)="onEditFormInput()"
+            ></textarea>
+          </label>
+
+          <div class="bug-detail-actions">
+            <button class="primary-button" type="submit" [disabled]="isSaving">
+              {{ isSaving ? 'Salvando...' : 'Salvar alteracoes' }}
+            </button>
+            <button class="secondary-button" type="button" [disabled]="isSaving" (click)="cancelEdit()">
+              Cancelar
+            </button>
+          </div>
+        </form>
+      } @else {
+        <section class="bug-detail-section">
+          <h3>Mensagem</h3>
+          <div class="error-snippet detail-snippet">
+            <span aria-hidden="true">▣</span>
+            <code>{{ selectedBug.errorMessage || 'Sem mensagem de erro registrada' }}</code>
+          </div>
+        </section>
+
+        <section class="bug-detail-section">
+          <h3>Descricao</h3>
+          <p>{{ selectedBug.description }}</p>
+        </section>
+
+        <section class="bug-detail-section">
+          <h3>Causa</h3>
+          <p>{{ selectedBug.cause || 'Sem causa registrada' }}</p>
+        </section>
+
+        <section class="bug-detail-section">
+          <h3>Solucao</h3>
+          <p>{{ selectedBug.solution || 'Sem solucao registrada' }}</p>
+        </section>
+      }
+
+      <footer class="bug-detail-footer">
+        <div class="bug-detail-dates">
+          <span>Criado: {{ selectedBug.createdAt }}</span>
+          <span>Atualizado: {{ selectedBug.updatedAt }}</span>
+        </div>
+
+        <div class="bug-detail-actions">
+          @if (!isEditing) {
+            <button class="secondary-button" type="button" (click)="startEdit()">
+              Editar
+            </button>
+
+            @if (selectedBug.status !== 'Resolvido') {
+              <button
+                class="primary-button"
+                type="button"
+                [disabled]="isResolving"
+                (click)="resolveSelectedBug()"
+              >
+                {{ isResolving ? 'Resolvendo...' : 'Marcar como resolvido' }}
+              </button>
+            }
+
+            <button
+              class="danger-button"
+              type="button"
+              [disabled]="isDeleting"
+              (click)="deleteSelectedBug()"
+            >
+              {{ isDeleting ? 'Deletando...' : 'Deletar' }}
+            </button>
+          }
+        </div>
+      </footer>
+
+      @if (resolveMessage) {
+        <p class="auth-message" [class.auth-message-success]="detailMessageType === 'success'" [class.auth-message-error]="detailMessageType === 'error'">
+          {{ resolveMessage }}
+        </p>
+      }
+    </article>
+  </div>
+}

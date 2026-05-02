@@ -1,4 +1,4 @@
-export interface BugResponse{
+export interface BugResponse {
   id: number;
   titulo: string;
   linguagem: string;

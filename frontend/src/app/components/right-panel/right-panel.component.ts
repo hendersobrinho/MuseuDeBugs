@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 
 import { BugResponse } from '../../models/bug-response';
 import { BugService } from '../../services/bug.service';
@@ -15,8 +15,10 @@ interface LanguageStat {
   imports: [BugCreatePanelComponent],
   templateUrl: './right-panel.component.html'
 })
-export class RightPanelComponent implements OnInit {
+export class RightPanelComponent implements OnChanges, OnInit {
   @Input() openCreateSignal = 0;
+  @Input() bugAtualizado: BugResponse | null = null;
+  @Input() bugDeletadoId: number | null = null;
   @Output() bugCriado = new EventEmitter<BugResponse>();
 
   totalBugs = 0;
@@ -43,13 +45,28 @@ export class RightPanelComponent implements OnInit {
     });
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['bugAtualizado'] && this.bugAtualizado) {
+      this.upsertBug(this.bugAtualizado);
+    }
+
+    if (changes['bugDeletadoId'] && this.bugDeletadoId != null) {
+      this.bugs = this.bugs.filter((bug) => bug.id !== this.bugDeletadoId);
+      this.calculateStats(this.bugs);
+    }
+  }
+
   handleBugCriado(bug: BugResponse): void {
+    this.upsertBug(bug);
+    this.bugCriado.emit(bug);
+  }
+
+  private upsertBug(bug: BugResponse): void {
     this.bugs = [
       bug,
       ...this.bugs.filter((currentBug) => currentBug.id !== bug.id)
     ];
     this.calculateStats(this.bugs);
-    this.bugCriado.emit(bug);
   }
 
   private calculateStats(bugs: BugResponse[]): void {

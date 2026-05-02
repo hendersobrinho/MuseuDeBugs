@@ -5,6 +5,11 @@ import { FormsModule } from '@angular/forms';
 import { BugResponse } from '../../models/bug-response';
 import { CriarBugRequest } from '../../models/criar-bug-request';
 import { BugService } from '../../services/bug.service';
+import {
+  normalizeBugLanguage,
+  normalizeOptionalBugText,
+  validateBugRequestForm
+} from '../../utils/bug-request-form';
 
 @Component({
   selector: 'app-bug-create-panel',
@@ -39,10 +44,15 @@ export class BugCreatePanelComponent implements OnChanges {
   }
 
   salvar(): void {
-    const request = this.buildRequest();
+    if (this.isSubmitting) {
+      return;
+    }
 
-    if (!this.isValid(request)) {
-      this.errorMessage = 'Preencha titulo, linguagem e descricao.';
+    const request = this.buildRequest();
+    const validationMessage = validateBugRequestForm(request);
+
+    if (validationMessage) {
+      this.errorMessage = validationMessage;
       this.successMessage = '';
       return;
     }
@@ -61,31 +71,31 @@ export class BugCreatePanelComponent implements OnChanges {
       },
       error: (error: HttpErrorResponse) => {
         this.errorMessage = this.getErrorMessage(error);
+        this.successMessage = '';
         this.isSubmitting = false;
       }
     });
   }
 
+  onFormInput(): void {
+    if (this.errorMessage) {
+      this.errorMessage = '';
+    }
+
+    if (this.successMessage) {
+      this.successMessage = '';
+    }
+  }
+
   private buildRequest(): CriarBugRequest {
     return {
       titulo: this.form.titulo.trim(),
-      linguagem: this.form.linguagem.trim(),
-      mensagemErro: this.normalizeOptionalText(this.form.mensagemErro),
+      linguagem: normalizeBugLanguage(this.form.linguagem),
+      mensagemErro: normalizeOptionalBugText(this.form.mensagemErro),
       descricao: this.form.descricao.trim(),
-      causa: this.normalizeOptionalText(this.form.causa),
-      solucao: this.normalizeOptionalText(this.form.solucao)
+      causa: normalizeOptionalBugText(this.form.causa),
+      solucao: normalizeOptionalBugText(this.form.solucao)
     };
-  }
-
-  private isValid(request: CriarBugRequest): boolean {
-    return request.titulo.length >= 3 &&
-      request.linguagem.length >= 1 &&
-      request.descricao.length >= 10;
-  }
-
-  private normalizeOptionalText(value: string | null | undefined): string | null {
-    const normalized = value?.trim() ?? '';
-    return normalized.length > 0 ? normalized : null;
   }
 
   private createEmptyForm(): CriarBugRequest {
@@ -105,9 +115,23 @@ export class BugCreatePanelComponent implements OnChanges {
     }
 
     if (error.status === 400) {
-      return 'Revise os campos do formulario.';
+      return this.getApiValidationMessage(error) ?? 'Revise os campos do formulario.';
     }
 
     return 'Nao foi possivel registrar o bug agora.';
+  }
+
+  private getApiValidationMessage(error: HttpErrorResponse): string | null {
+    const validationErrors = error.error?.errors;
+
+    if (!validationErrors || typeof validationErrors !== 'object') {
+      return null;
+    }
+
+    const messages = Object.values(validationErrors)
+      .flatMap((value) => Array.isArray(value) ? value : [value])
+      .filter((value): value is string => typeof value === 'string');
+
+    return messages[0] ?? null;
   }
 }

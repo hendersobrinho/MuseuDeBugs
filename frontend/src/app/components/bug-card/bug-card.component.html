@@ -1,4 +1,12 @@
-<article class="bug-card" [class]="'bug-card signal-' + bug.signal">
+<article
+  class="bug-card"
+  [class]="'bug-card signal-' + bug.signal"
+  role="button"
+  tabindex="0"
+  (click)="selectBug()"
+  (keydown.enter)="selectBugWithKeyboard($event)"
+  (keydown.space)="selectBugWithKeyboard($event)"
+>
   <div class="card-topline">
     <span class="language-chip">{{ bug.language }}</span>
     <span class="status-pill" [class]="statusClass + ' status-pill'">{{ bug.status }}</span>
@@ -8,10 +16,10 @@
 
   <div class="error-snippet">
     <span aria-hidden="true">▣</span>
-    <code>{{ bug.errorMessage }}</code>
+    <code>{{ bug.errorMessage || 'Sem mensagem de erro registrada' }}</code>
   </div>
 
-  <p>{{ bug.cause }}</p>
+  <p>{{ bug.description }}</p>
 
   <footer class="card-footer">
     <span>
