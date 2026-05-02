@@ -1,3 +1,5 @@
+import { environment } from "../../environments/environment";
+
 declare global {
   interface Window {
     MUSEU_DEBUGS_CONFIG?: {
@@ -6,4 +8,4 @@ declare global {
   }
 }
 
-export const API_URL = window.MUSEU_DEBUGS_CONFIG?.apiUrl ?? 'http://localhost:5041/api';
+export const API_URL = window.MUSEU_DEBUGS_CONFIG?.apiUrl ?? environment.apiUrl;
