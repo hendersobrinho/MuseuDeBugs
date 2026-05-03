@@ -58,9 +58,21 @@ export class AppComponent {
     this.bugAlterado = null;
   }
 
+  handleBuscaPorIdConcluida(bug: BugResponse | null): void {
+    this.bugBuscado = bug;
+
+    if (bug) {
+      this.activeFilter = null;
+    }
+  }
+
   handleTermoBuscaAlterado(termo: string): void {
     this.termoBusca = termo;
     this.bugBuscado = null;
+
+    if (termo) {
+      this.activeFilter = null;
+    }
   }
 
   handleFilterSelected(filter: BugFilter): void {

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 import { BugFilter } from '../../models/bug-filter';
 
@@ -8,6 +8,7 @@ import { BugFilter } from '../../models/bug-filter';
   templateUrl: './groove-strip.component.html'
 })
 export class GrooveStripComponent {
+  @Input() selectedFilter: BugFilter | null = null;
   @Output() filterSelected = new EventEmitter<BugFilter>();
 
   readonly pads: BugFilter[] = [
@@ -18,10 +19,12 @@ export class GrooveStripComponent {
     { code: 'C1', label: 'SQL', linguagem: 'SQL' },
     { code: 'C2', label: 'Angular', linguagem: 'Angular' },
   ];
-  activeFilter = this.pads[0];
+
+  get activeFilterCode(): string {
+    return this.selectedFilter?.code ?? this.pads[0].code;
+  }
 
   selectFilter(filter: BugFilter): void {
-    this.activeFilter = filter;
     this.filterSelected.emit(filter);
   }
 }

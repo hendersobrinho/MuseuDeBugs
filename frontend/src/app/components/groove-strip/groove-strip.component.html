@@ -4,7 +4,7 @@
       <button
         type="button"
         class="pad pad-{{ index % 4 }}"
-        [class.active]="activeFilter.code === pad.code"
+        [class.active]="activeFilterCode === pad.code"
         (click)="selectFilter(pad)"
       >
         <span>{{ pad.code }}</span>
