@@ -45,6 +45,7 @@ export class TopbarComponent {
     if (!Number.isInteger(id) || id <= 0) {
       this.erroBusca = '';
       this.buscaPorIdConcluida.emit(null);
+      this.termoBuscaAlterado.emit(value);
       return;
     }
 

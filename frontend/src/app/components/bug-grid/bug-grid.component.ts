@@ -91,11 +91,11 @@ export class BugGridComponent implements OnInit, OnChanges {
 
     if (this.activeFilter?.linguagem) {
       bugsFiltrados = bugsFiltrados.filter((bug) =>
-        this.normalizarTexto(bug.language) === this.normalizarTexto(this.activeFilter?.linguagem ?? '')
+        this.normalizarTexto(bug.language).includes(this.normalizarTexto(this.activeFilter?.linguagem))
       );
     }
 
-    const termoNormalizado = this.termoBusca.trim().toLowerCase();
+    const termoNormalizado = this.normalizarTexto(this.termoBusca);
 
     if (termoNormalizado) {
       bugsFiltrados = bugsFiltrados.filter((bug) =>
@@ -108,7 +108,7 @@ export class BugGridComponent implements OnInit, OnChanges {
           bug.description,
           bug.cause,
           bug.solution
-        ].join(' ')).includes(this.normalizarTexto(termoNormalizado))
+        ].join(' ')).includes(termoNormalizado)
       );
     }
 
@@ -298,8 +298,9 @@ export class BugGridComponent implements OnInit, OnChanges {
     };
   }
 
-  private normalizarTexto(value: string): string {
-    return value
+  private normalizarTexto(value: string | null | undefined): string {
+    return (value ?? '')
+      .trim()
       .toLowerCase()
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '');

@@ -58,7 +58,7 @@ namespace MuseuDeBugs.Api.Services
             if (!string.IsNullOrWhiteSpace(linguagem))
             {
                 var linguagemNormalizada = NormalizarLinguagem(linguagem).ToLower();
-                query = query.Where(bug => bug.Linguagem.ToLower() == linguagemNormalizada);
+                query = query.Where(bug => bug.Linguagem.ToLower().Contains(linguagemNormalizada));
             }
 
             var bugs = query.ToList();

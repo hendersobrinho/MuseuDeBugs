@@ -147,17 +147,21 @@ public class BugServiceTests
         service.CriarBug(CriarRequest(titulo: "Bug C#", linguagem: "C#"));
         var bugSqlResolvido = service.CriarBug(CriarRequest(titulo: "Bug SQL resolvido", linguagem: "SQL"));
         service.CriarBug(CriarRequest(titulo: "Bug SQL aberto", linguagem: "SQL"));
+        service.CriarBug(CriarRequest(titulo: "Bug Angular em deploy", linguagem: "Angular / Vercel"));
         service.MarcarComoResolvido(bugSqlResolvido.Id);
 
         var bugsResolvidos = service.ListarBugs("Resolvido", null);
         var bugsSql = service.ListarBugs(null, "SQL");
         var bugsSqlMinusculo = service.ListarBugs(null, "sql");
+        var bugsAngular = service.ListarBugs(null, "Angular");
 
         Assert.Single(bugsResolvidos);
         Assert.Equal("Resolvido", bugsResolvidos[0].Status);
         Assert.Equal(2, bugsSql.Count);
         Assert.Equal(2, bugsSqlMinusculo.Count);
         Assert.All(bugsSql, bug => Assert.Equal("SQL", bug.Linguagem));
+        Assert.Single(bugsAngular);
+        Assert.Contains("Angular", bugsAngular[0].Linguagem);
     }
 
     [Fact]
