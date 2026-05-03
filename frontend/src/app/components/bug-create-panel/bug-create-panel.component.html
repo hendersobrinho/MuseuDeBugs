@@ -39,7 +39,7 @@
         <textarea
           name="mensagemErro"
           rows="3"
-          maxlength="500"
+          maxlength="1000"
           [(ngModel)]="form.mensagemErro"
           (ngModelChange)="onFormInput()"
         ></textarea>
@@ -50,7 +50,7 @@
         <textarea
           name="descricao"
           rows="4"
-          maxlength="2000"
+          maxlength="8000"
           required
           [(ngModel)]="form.descricao"
           (ngModelChange)="onFormInput()"
@@ -62,7 +62,7 @@
         <textarea
           name="causa"
           rows="3"
-          maxlength="2000"
+          maxlength="8000"
           [(ngModel)]="form.causa"
           (ngModelChange)="onFormInput()"
         ></textarea>
@@ -73,7 +73,7 @@
         <textarea
           name="solucao"
           rows="3"
-          maxlength="2000"
+          maxlength="8000"
           [(ngModel)]="form.solucao"
           (ngModelChange)="onFormInput()"
         ></textarea>

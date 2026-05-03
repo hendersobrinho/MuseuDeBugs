@@ -4,30 +4,27 @@ namespace MuseuDeBugs.Api.DTOs
 {
     public class AtualizarBugRequest
     {
-        [Required]
+        [Required(ErrorMessage = "Titulo deve ser preenchido.")]
         [MaxLength(120)]
         [MinLength(1)]
-        [RegularExpression(@".*\S.*", ErrorMessage = "Titulo deve ser preenchido.")]
         public string Titulo { get; set; } = string.Empty;
-        [Required]
+        [Required(ErrorMessage = "Linguagem deve ser preenchida.")]
         [MinLength(1)]
         [MaxLength(50)]
-        [RegularExpression(@".*\S.*", ErrorMessage = "Linguagem deve ser preenchida.")]
         public string Linguagem { get; set; } = string.Empty;
 
-        [MaxLength(500)]
+        [MaxLength(1000)]
         public string? MensagemErro { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Descricao deve ser preenchida.")]
         [MinLength(10)]
-        [MaxLength(2000)]
-        [RegularExpression(@".*\S.*", ErrorMessage = "Descricao deve ser preenchida.")]
+        [MaxLength(8000)]
         public string Descricao { get; set; } = string.Empty;
 
-        [MaxLength(2000)]
+        [MaxLength(8000)]
         public string? Causa { get; set; }
 
-        [MaxLength(2000)]
+        [MaxLength(8000)]
         public string? Solucao { get; set; }
     }
 }

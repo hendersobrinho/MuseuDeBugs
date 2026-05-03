@@ -562,15 +562,15 @@ Retornos principais:
 
 Campos obrigatorios:
 
-- `Titulo`: 3 ate 120 caracteres
+- `Titulo`: 1 ate 120 caracteres
 - `Linguagem`: 1 ate 50 caracteres
-- `Descricao`: 10 ate 2000 caracteres
+- `Descricao`: 10 ate 8000 caracteres
 
 Campos opcionais, mas com limite:
 
-- `MensagemErro`: ate 500 caracteres
-- `Causa`: ate 2000 caracteres
-- `Solucao`: ate 2000 caracteres
+- `MensagemErro`: ate 1000 caracteres
+- `Causa`: ate 8000 caracteres
+- `Solucao`: ate 8000 caracteres
 
 Isso e para evitar mandar um texto gigante onde deveria entrar so uma anotacao.
 

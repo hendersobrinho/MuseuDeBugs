@@ -43,6 +43,32 @@ public class BugRequestValidationTests
         Assert.False(Validar(request));
     }
 
+    [Fact]
+    public void CriarBugRequest_DeveAceitarDescricaoMultilinhaComTexto()
+    {
+        var request = new CriarBugRequest
+        {
+            Titulo = "Titulo",
+            Linguagem = "C#",
+            Descricao = "Primeira linha\nsegunda linha com contexto."
+        };
+
+        Assert.True(Validar(request));
+    }
+
+    [Fact]
+    public void AtualizarBugRequest_DeveAceitarDescricaoMultilinhaComTexto()
+    {
+        var request = new AtualizarBugRequest
+        {
+            Titulo = "Titulo",
+            Linguagem = "C#",
+            Descricao = "Primeira linha\nsegunda linha com contexto."
+        };
+
+        Assert.True(Validar(request));
+    }
+
     private static bool Validar(object request)
     {
         var context = new ValidationContext(request);

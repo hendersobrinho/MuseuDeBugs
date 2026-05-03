@@ -967,21 +967,21 @@ Exemplo:
 Exemplo:
 
 ```csharp
-[Required]
+[Required(ErrorMessage = "Titulo deve ser preenchido.")]
 [MaxLength(120)]
 [MinLength(1)]
-[RegularExpression(@".*\S.*", ErrorMessage = "Titulo deve ser preenchido.")]
 public string Titulo { get; set; } = string.Empty;
 ```
 
 Linha por linha:
 
 ```csharp
-[Required]
+[Required(ErrorMessage = "Titulo deve ser preenchido.")]
 ```
 
 - Campo obrigatorio.
-- Rejeita `null`.
+- Rejeita `null`, string vazia e string so com espacos.
+- `ErrorMessage` define a mensagem que a API devolve no erro 400.
 
 ```csharp
 [MaxLength(120)]
@@ -995,44 +995,6 @@ Linha por linha:
 ```
 
 - Exige pelo menos 1 caractere.
-
-```csharp
-[RegularExpression(@".*\S.*", ErrorMessage = "Titulo deve ser preenchido.")]
-```
-
-- Exige pelo menos um caractere que nao seja espaco.
-- `RegularExpression` usa regex.
-- `@` antes da string cria verbatim string em C#.
-- Em verbatim string, barras ficam mais faceis de ler.
-
-Regex:
-
-```text
-.*\S.*
-```
-
-Quebra:
-
-```text
-.*   qualquer coisa antes
-\S   um caractere nao-branco
-.*   qualquer coisa depois
-```
-
-Passa:
-
-```text
-"Teste"
-" C# "
-"a"
-```
-
-Nao passa:
-
-```text
-""
-"     "
-```
 
 ```csharp
 public string Titulo { get; set; } = string.Empty;
@@ -1789,7 +1751,7 @@ Pacote de validacao robusta:
 frontend/src/app/utils/bug-request-form.ts
 mudancas no create panel
 mudancas no edit form do bug grid
-RegularExpression nos DTOs
+Required com ErrorMessage nos DTOs
 normalizacao no BugService
 testes novos
 ```
