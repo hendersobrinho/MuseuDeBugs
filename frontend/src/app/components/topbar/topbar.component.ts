@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { BugResponse } from '../../models/bug-response';
 import { BugService } from '../../services/bug.service';
@@ -10,11 +10,11 @@ import { BugService } from '../../services/bug.service';
   templateUrl: './topbar.component.html'
 })
 export class TopbarComponent {
+  @Input() termoBusca = '';
   @Output() buscaPorIdConcluida = new EventEmitter<BugResponse | null>();
   @Output() termoBuscaAlterado = new EventEmitter<string>();
   @Output() registrarBugSolicitado = new EventEmitter<void>();
 
-  termoBusca = '';
   erroBusca = '';
   carregandoBusca = false;
 

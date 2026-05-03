@@ -4,11 +4,12 @@
 
   <main class="workspace">
     <app-topbar
+      [termoBusca]="termoBusca"
       (buscaPorIdConcluida)="bugBuscado = $event"
       (termoBuscaAlterado)="handleTermoBuscaAlterado($event)"
       (registrarBugSolicitado)="handleRegistrarBugSolicitado()"
     />
-    <app-groove-strip (filterSelected)="activeFilter = $event" />
+    <app-groove-strip (filterSelected)="handleFilterSelected($event)" />
 
     <app-bug-grid
       [bugBuscado]="bugBuscado"

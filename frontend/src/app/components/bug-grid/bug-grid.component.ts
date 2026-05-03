@@ -85,13 +85,13 @@ export class BugGridComponent implements OnInit, OnChanges {
 
     if (this.activeFilter?.status) {
       bugsFiltrados = bugsFiltrados.filter((bug) =>
-        bug.status === this.activeFilter?.status
+        this.normalizarTexto(bug.status) === this.normalizarTexto(this.activeFilter?.status ?? '')
       );
     }
 
     if (this.activeFilter?.linguagem) {
       bugsFiltrados = bugsFiltrados.filter((bug) =>
-        bug.language === this.activeFilter?.linguagem
+        this.normalizarTexto(bug.language) === this.normalizarTexto(this.activeFilter?.linguagem ?? '')
       );
     }
 

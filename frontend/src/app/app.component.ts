@@ -62,4 +62,10 @@ export class AppComponent {
     this.termoBusca = termo;
     this.bugBuscado = null;
   }
+
+  handleFilterSelected(filter: BugFilter): void {
+    this.activeFilter = filter;
+    this.bugBuscado = null;
+    this.termoBusca = '';
+  }
 }
